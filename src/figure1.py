@@ -3,15 +3,15 @@
 from pathlib import Path
 
 from parse_trans import parse_trans_file
-from rare_words import RARE_WORDS_FILE, load_rare_words, find_rare_words
+from rare_words import load_common_words, find_rare_words
 
 SPLIT_DIR = Path("data/LIBRISPEECH/LibriSpeech/dev-clean")
 
 BUCKET_ORDER = ["0", "1", "2-5", "6+"]
 
-"""把 rare word 數量分到四個桶之一。"""
 def bucket_of(n):
 
+    """把 rare word 數量分到四個桶之一。"""
     if n == 0:
         return "0"
     if n == 1:
@@ -22,8 +22,8 @@ def bucket_of(n):
 
 
 def main():
-    rare_set = load_rare_words(RARE_WORDS_FILE)
-    print(f"載入 {len(rare_set)} 個 rare words")
+    common_set = load_common_words()
+    print(f"載入 {len(common_set)} 個 common words")
 
     counts = {"0": 0, "1": 0, "2-5": 0, "6+": 0}
     total = 0
@@ -36,7 +36,7 @@ def main():
 
     for trans_file in trans_files:
         for utt_id, text in parse_trans_file(trans_file):
-            n = len(find_rare_words(text, rare_set))
+            n = len(find_rare_words(text, common_set))
 
             counts[bucket_of(n)] += 1
             total += 1
@@ -61,4 +61,4 @@ def main():
     print(f"少於 10 個的佔比: {n_lt_10 / total * 100:.2f}%   (論文 3.4 節說 99%)")
 
 if __name__ == "__main__":
-       main()
+    main()
