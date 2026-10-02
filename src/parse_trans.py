@@ -1,10 +1,7 @@
 """解析 LibriSpeech 的 trans.txt，印出 utterance ID 和逐字稿。"""
-
 from pathlib import Path
 
-TRANS = Path(
-    "data/LIBRISPEECH/LibriSpeech/dev-clean/1272/128104/1272-128104.trans.txt"
-)
+TRANS = Path("data/LIBRISPEECH/LibriSpeech/dev-clean/1272/128104/1272-128104.trans.txt")
 
 
 def parse_trans_file(path):
@@ -24,11 +21,15 @@ def main():
     items = parse_trans_file(TRANS)
     print(f"這個檔案有 {len(items)} 句")
     for utt_id, text in items[:3]:
-        print(f"  {utt_id} | {text[:50]}...")
+        text_nums = len(text.split())
+        print(f"  {utt_id}| 這行有 {text_nums} 個字 | {text[:50]}...")
+    n = len(items)
+    lengths = []
+    for utt_id, text in items:
+        lengths.append((len(text.split()), utt_id))
 
+    print(f"最大長度: {max(lengths, key=lambda x: x[0])}")
+    print(f"最短長度: {min(lengths, key=lambda x: x[0])}")
 
 if __name__ == "__main__":
     main()
-
-
-
