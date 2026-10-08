@@ -9,19 +9,22 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import WhisperFeatureExtractor, AutoTokenizer
 
 WHISPER_ID = "openai/whisper-large-v2"
-LM_ID = "HuggingFaceTB/SmolLM2-135M-Instruct"
+LM_ID = "HuggingFaceTB/SmolLM2-135M-Instruct" 
 
-MAX_DURATION = 30.0  # Whisper 的硬上限，超過的會被靜默截斷
+MAX_DURATION = 30.0  # Whisper 的硬上限超過的會被截斷 30的單位是秒
 
 CTC_CHARS = " 'abcdefghijklmnopqrstuvwxyz"  # 28 個，實測得到
 CTC_BLANK_ID = 0
-# char → id 的對照表，id 0 保留給 blank
-CTC_CHAR2ID = {c: i + 1 for i, c in enumerate(CTC_CHARS)}
+# char -> id 的對照表，id 0 保留給 blank(空白字元)
+CTC_CHAR2ID = {c: i + 1 for i, c in enumerate(CTC_CHARS)} #要留[0]給 blank
+#enumerate()會把字串編號 
+#eg enumerate("abc") -> (0, 'a'), (1, 'b'), (2, 'c')這樣的編號
 
 
 def text_to_ctc_ids(text):
     """把逐字稿轉成 CTC 的 id 序列（跳過表外字元）。"""
     return [CTC_CHAR2ID[c] for c in text if c in CTC_CHAR2ID]
+    #閱讀順序 for c in text, if c in CTC_CHAR2ID, return CTC_CHAR2ID[c]
 
 
 class LibriSpeechDataset(Dataset):
@@ -48,24 +51,34 @@ class LibriSpeechDataset(Dataset):
                 })
         print(f"{manifest_path}: 載入 {len(self.rows)} 句，跳過 {n_skip} 句（>{max_duration}s）")
 
+    #__len__ 一共有幾筆
     def __len__(self):
-        # TODO: 回傳總筆數
-        ...
+        return len(self.rows)
 
+        
+    #__getitem__  給我第i筆
     def __getitem__(self, i):
         r = self.rows[i]
+        # r的形狀 = {"utt_id": "u1", "audio_path": "a.flac", "duration": 5.2, ...}
 
         # TODO 1: 用 sf.read 讀出波形和取樣率
+        wav, sr = sf.read(r["audio_path"])
+
         # TODO 2: 用 self.fe(wav, sampling_rate=sr, return_tensors="pt")
         #         取出 .input_features，並用 [0] 去掉 batch 維 → (80, 3000)
+        out = self.fe(wav, sampling_rate=sr, return_tensors="pt")
+        input_features = out.input_features[0]
+        
         # TODO 3: 用 text_to_ctc_ids 把 r["text"] 轉成 id list，
         #         再轉成 torch.tensor（dtype=torch.long）
+        id_list = text_to_ctc_ids(r["text"])
+        ctc_ids = torch.tensor(id_list, dtype=torch.long)
 
         return {
             "utt_id": r["utt_id"],
-            "input_features": ...,  # (80, 3000)
+            "input_features": input_features,  # (80, 3000)
             "text": r["text"],
-            "ctc_ids": ...,  # (n_chars,)
+            "ctc_ids": ctc_ids,  # (n_chars,)
             "rare_words": r["rare_words"],
         }
 
@@ -73,6 +86,8 @@ class LibriSpeechDataset(Dataset):
 def collate_fn(batch):
     """把一批 sample 疊成 batch tensor。"""
     # TODO 4: input_features 全部等長 (80, 3000) → 用 torch.stack 疊成 (B, 80, 3000)
+    batch_list = [b["input_features"] for b in batch ]
+    input_features = torch.stack(batch_list)
 
     # ctc_ids 長度不一，要 pad。CTC loss 需要知道每句的真實長度
     ctc_lens = torch.tensor([len(b["ctc_ids"]) for b in batch], dtype=torch.long)
@@ -83,7 +98,7 @@ def collate_fn(batch):
 
     return {
         "utt_id": [b["utt_id"] for b in batch],
-        "input_features": ...,  # TODO 4 的結果
+        "input_features": input_features,  # TODO 4 的結果
         "text": [b["text"] for b in batch],
         "ctc_ids": ctc_ids,  # (B, max_len)
         "ctc_lens": ctc_lens,  # (B,)

@@ -69,7 +69,7 @@ def ctc_compress(hidden, logits, blank_id=0):
     #pred[n:m] 表示法就是從第 'n' 印倒第 'm-1' 包頭不包包尾
     #True就是換字了
 
-    first = torch.tensor([True])
+    first = torch.ones(1, dtype=torch.bool, device=pred.device)
     #因為 len(change) = 7對不齊
 
     changed = torch.cat([first, change])
