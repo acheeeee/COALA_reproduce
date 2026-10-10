@@ -39,7 +39,7 @@ def main():
     encoder = WhisperModel.from_pretrained(WHISPER_ID).get_encoder() #先拿whisper 裡面的encoder
     encoder.eval()  #模型切到 evaluation 模式(相對於 train() 模式)
 
-    lm = AutoModelForCausalLM.from_pretrained(LM_ID)
+    lm = AutoModelForCausalLM.from_pretrained(LM_ID, dtype=torch.float32)
     emb = lm.get_input_embeddings().weight
     print(f"\n[LM embedding查表] shape = {tuple(emb.shape)}")
     print(f"   → vocab_size = {emb.shape[0]}, hidden_size(D) = {emb.shape[1]}")
