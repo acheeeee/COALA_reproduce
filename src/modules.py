@@ -2,6 +2,8 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
 
 class AudioAdapter(nn.Module):
     """把 Whisper encoder 輸出接到 LM 的 embedding 空間。
@@ -82,6 +84,45 @@ def ctc_compress(hidden, logits, blank_id=0):
     
     return hidden[keep]
 
+def compute_ctc_loss(logits, targets, target_lengths, blank_id=0):
+    """算 CTC loss。
+
+    Args:
+        logits:         (B, T, C)  CTCHead 的輸出
+        targets:        (B, S)     padded 的字元 id（來自 collate 的 ctc_ids）
+        target_lengths: (B,)       每句真實字元數（來自 collate 的 ctc_lens）
+        blank_id:       int        blank 的 id
+
+    Returns:
+        純量 loss
+
+    注意三件事：
+    1. CTCLoss 要 (T, B, C) 的維度順序 → 要 transpose(0, 1)
+    2. 要先 log_softmax(dim=-1)，它吃的是 log 機率不是 logits
+    3. input_lengths 全部等於 T（Whisper 固定 30 秒，沒有 padding）
+    """
+    # TODO 1: log_probs = logits.log_softmax(dim=-1).transpose(0, 1)
+    #         → (T, B, C)
+
+    log_probs = logits.log_softmax(dim=-1).transpose(0, 1)
+    # .log_softmax()就是把分數變機率,然後再取LOG
+    #eg X=[1,2,3] -> X.log_softmax() = [1/6, 2/6, 3/6]
+    # .transpose(m, n)就是把第m, n維的順序互換
+
+    # TODO 2: B, T = logits.shape[0], logits.shape[1]
+    #         input_lengths = torch.full((B,), T, dtype=torch.long,
+    #                                    device=logits.device)
+    B, T = logits.shape[0], logits.shape[1]
+    input_lengths = torch.full((B,), T, dtype=torch.long, device=logits.device)
+            
+    
+    
+    # TODO 3: 用 torch.nn.functional.ctc_loss(...)
+    #         參數：log_probs, targets, input_lengths, target_lengths,
+    #              blank=blank_id, reduction="mean", zero_infinity=True
+    return F.ctc_loss(log_probs, targets, input_lengths, target_lengths,
+                blank=blank_id, reduction="mean", zero_infinity=True)
+
 def main():
     x = torch.randn(2, 1500, 1280)         
     # randn(產程隨機的數字0-1之間，n是常態分布，整體平均是0標準差是1),(batch, T, d_model)＝(一次處理兩個音檔, 總共有1500個audio token, 1280是whisper encod的輸出維度)
@@ -99,6 +140,16 @@ def main():
     print(f"\nadapter 的數量有 {n_a:,}個")
     print(f"ctc 的數量有 {n_c:,}個")
     print(f"total {n_a + n_c:,} ,buget are 5,700,000")
+
+    print("\n--- CTC loss ---")
+    B, T, C = 4, 375, 29
+    logits = torch.randn(B, T, C)
+    targets = torch.randint(1, C, (B, 172))      # id 0 保留給 blank，所以從 1 開始
+    target_lengths = torch.tensor([89, 63, 172, 133])
+
+    loss = compute_ctc_loss(logits, targets, target_lengths)
+    print(f"loss = {loss.item():.4f}")
+    print(f"隨機初始化的理論值約 ln({C}) = {torch.log(torch.tensor(float(C))).item():.4f}")
 
 if __name__ == "__main__":
     main()

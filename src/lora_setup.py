@@ -16,9 +16,9 @@ from transformers import AutoModelForCausalLM
 
 LM_ID = "HuggingFaceTB/SmolLM2-135M-Instruct"
 
-LORA_RANK = 16
-LORA_ALPHA = 32
-LORA_DROPOUT = 0.05
+LORA_RANK = 16          #上限維度 r=16
+LORA_ALPHA = 32         #縮放係數
+LORA_DROPOUT = 0.05     #隨機丟掉防止過擬合
 TARGET_MODULES = ["q_proj", "v_proj"]
 
 
@@ -28,7 +28,7 @@ def make_lora_config():
         lora_alpha=LORA_ALPHA,
         lora_dropout=LORA_DROPOUT,
         target_modules=TARGET_MODULES,
-        bias="none",
+        bias="none",                    #不訓練本來的bias 因為要把它凍結起來
         task_type="CAUSAL_LM",
     )
 
@@ -40,23 +40,37 @@ def count_trainable(model):
 def main():
     # TODO 1: 載入 lm = AutoModelForCausalLM.from_pretrained(LM_ID)
     #         印出總參數量（應該是 134.5M）
-
+    lm = AutoModelForCausalLM.from_pretrained(LM_ID, dtype=torch.float32)
+    print(f"total parameter: {count_trainable(lm)/1e6:.1f}M") # 1e6 = 1,000,000 . :.1f 是小數點後留一位
+    
     # TODO 2: 用 get_peft_model(lm, make_lora_config(), adapter_name="asr")
     #         包起來，印出 model.print_trainable_parameters()
-
+    model = get_peft_model(lm, make_lora_config(), adapter_name="asr")
+    model.print_trainable_parameters()
+    
     # TODO 3: 用 model.add_adapter("scoring", make_lora_config()) 加第二組
     #         再印一次可訓練參數量
+    model.add_adapter("scoring", make_lora_config())
+    model.print_trainable_parameters()
 
     # TODO 4: 用 model.set_adapter("asr") 切換，印出 count_trainable
     #         再 model.set_adapter("scoring")，印出 count_trainable
     #         兩個數字應該相同（兩組 config 一樣）
+    model.set_adapter("asr")
+    print(f"ASR: ")
+    model.print_trainable_parameters()
+    model.set_adapter("scoring")
+    print(f"Scoring: ")
+    model.print_trainable_parameters()
 
     # TODO 5: 跑一次 forward 確認能動
     #         x = torch.randn(1, 20, 576)
     #         out = model(inputs_embeds=x)
     #         印出 out.logits.shape（應該是 (1, 20, 49152)）
-    ...
+    x = torch.randn(1, 20, 576)
+    out = model(inputs_embeds=x)
+    print(out.logits.shape)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
