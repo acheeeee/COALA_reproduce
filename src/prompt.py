@@ -112,6 +112,39 @@ def build_stage1_sample(audio_tokens, entity_list, target_text, tokenizer, embed
         "attention_mask": attention_mask,
     }
 
+def pad_batch(samples, pad_side="right"):
+    """把 build_stage1_sample 的多個輸出 pad 成 batch。
+
+    Args:
+        samples: list of dict，各含 inputs_embeds (tot_i, 576) /
+                 labels (tot_i,) / attention_mask (tot_i,)
+        pad_side: "right" 訓練用、"left" 生成用
+
+    Returns:
+        dict 含 (B, max_tot, 576) / (B, max_tot) / (B, max_tot)
+    """
+    B = len(samples)
+    lens = [s["inputs_embeds"].shape[0] for s in samples]
+    max_len = max(lens)
+    d = samples[0]["inputs_embeds"].shape[1]
+    dev = samples[0]["inputs_embeds"].device
+    dtype = samples[0]["inputs_embeds"].dtype
+
+    embeds = torch.zeros(B, max_len, d, dtype=dtype, device=dev)
+    labels = torch.full((B, max_len), IGNORE_INDEX, dtype=torch.long, device=dev)
+    mask = torch.zeros(B, max_len, dtype=torch.long, device=dev)
+
+    for i, s in enumerate(samples):
+        n = lens[i]
+        if pad_side == "right":
+            sl = slice(0, n)
+        else:
+            sl = slice(max_len - n, max_len)
+        embeds[i, sl] = s["inputs_embeds"]
+        labels[i, sl] = s["labels"]
+        mask[i, sl] = s["attention_mask"]
+
+    return {"inputs_embeds": embeds, "labels": labels, "attention_mask": mask}
 
 def main():
     from transformers import AutoTokenizer, AutoModelForCausalLM
