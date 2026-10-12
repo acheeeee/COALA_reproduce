@@ -23,6 +23,8 @@ INSTRUCTION_TEMPLATE = (
     "The following entities may appear: {entities}."
 )
 
+INSTRUCTION_NO_BIAS = "Transcribe the speech."
+
 #bos_token -> beginning of sequqnce
 #eos_token -> end of sequence
 
@@ -39,6 +41,12 @@ def build_seg2(entity_list, tokenizer):
     instruction = INSTRUCTION_TEMPLATE.format(entities=", ".join(entity_list))  
     # .join(list) -> 把list 用 ", "的方式接成一個字串
     # .format(entities) 就是把entities的句子接上 INSTRUCTION_TEMPLATE
+
+    if entity_list:
+        instruction = INSTRUCTION_TEMPLATE.format(
+            entities=", ".join(entity_list))
+    else:
+        instruction = INSTRUCTION_NO_BIAS
 
     return (
         f"{instruction}{tokenizer.eos_token}\n"
@@ -112,6 +120,73 @@ def build_stage1_sample(audio_tokens, entity_list, target_text, tokenizer, embed
         "attention_mask": attention_mask,
     }
 
+def pad_batch(samples, pad_side="right"):
+    """把 build_stage1_sample 的多個輸出 pad 成 batch。
+
+    Args:
+        samples: list of dict，各含 inputs_embeds (tot_i, 576) /
+                 labels (tot_i,) / attention_mask (tot_i,)
+        pad_side: "right" 訓練用、"left" 生成用
+
+    Returns:
+        dict 含 (B, max_tot, 576) / (B, max_tot) / (B, max_tot)
+    """
+    B = len(samples)
+    lens = [s["inputs_embeds"].shape[0] for s in samples]
+    max_len = max(lens)
+    d = samples[0]["inputs_embeds"].shape[1]
+    dev = samples[0]["inputs_embeds"].device
+    dtype = samples[0]["inputs_embeds"].dtype
+
+    embeds = torch.zeros(B, max_len, d, dtype=dtype, device=dev)
+    labels = torch.full((B, max_len), IGNORE_INDEX, dtype=torch.long, device=dev)
+    mask = torch.zeros(B, max_len, dtype=torch.long, device=dev)
+
+    for i, s in enumerate(samples):
+        n = lens[i]
+        if pad_side == "right":
+            sl = slice(0, n)
+        else:
+            sl = slice(max_len - n, max_len)
+        embeds[i, sl] = s["inputs_embeds"]
+        labels[i, sl] = s["labels"]
+        mask[i, sl] = s["attention_mask"]
+
+    return {"inputs_embeds": embeds, "labels": labels, "attention_mask": mask}
+
+def build_gen_prompt(audio_tokens, entity_list, tokenizer, embed_layer):
+    """生成用的 prompt：只到 assistant turn 開始，不含 target。
+
+    Returns:
+        inputs_embeds (1, n1+L+n2, 576), attention_mask (1, n1+L+n2)
+    """
+    dev = audio_tokens.device
+
+    # TODO 1: seg1 / seg2 用 build_seg1 / build_seg2
+
+    seg1 = build_seg1(tokenizer)
+    seg2 = build_seg2(entity_list,tokenizer)
+    #seg1,seg2都是已經加好前後綴的文字句了
+
+    # TODO 2: 兩段用 encode() 轉 id、再用 embed_layer 查成向量
+    #   def encode(text, tokenizer, device)
+    seg1_ids = encode(seg1, tokenizer, dev)
+    seg2_ids = encode(seg2, tokenizer, dev)
+    #seg1_ids,seg2_ids都是裝編號的tensor
+
+    seg1_emb = embed_layer(seg1_ids)
+    seg2_emb = embed_layer(seg2_ids)
+
+    # TODO 3: torch.cat([seg1_emb, audio_tokens, seg2_emb], dim=0)
+    #         然後 .unsqueeze(0) 加上 batch 維 → (1, total, 576)
+
+    inputs_embeds = torch.cat([seg1_emb, audio_tokens, seg2_emb], dim=0).unsqueeze(0)
+    total = inputs_embeds.shape[1]
+
+    # TODO 4: attention_mask = torch.ones(1, total, dtype=torch.long, device=dev)
+    attention_mask = torch.ones(1, total, dtype=torch.long, device=dev)
+
+    return {"inputs_embeds": inputs_embeds, "attention_mask": attention_mask}
 
 def main():
     from transformers import AutoTokenizer, AutoModelForCausalLM

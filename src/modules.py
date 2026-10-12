@@ -14,7 +14,7 @@ class AudioAdapter(nn.Module):
       （無資訊損失，只是重新排列），再用 Linear 壓到 576 維。
     """
 
-    def __init__(self, d_in=1280, d_out=576, stack=4):
+    def __init__(self, d_in=1280, d_out=576, stack=2):
         # d_in 對應whisper encode的輸出 1280
         # d_out 對應adapter會送出來的目標維度 576
         
