@@ -17,7 +17,7 @@ CE_WEIGHT = 1.0
 
 
 class COALAModel(nn.Module):
-    def __init__(self):
+    def __init__(self, stack=2):
         super().__init__()
 
         # TODO 1: 載入 Whisper encoder（記得 dtype=torch.float32），
@@ -30,7 +30,7 @@ class COALAModel(nn.Module):
         # TODO 2: self.adapter = AudioAdapter()
         #         self.ctc_head = CTCHead()
 
-        self.adapter = AudioAdapter()
+        self.adapter = AudioAdapter(stack=stack)
         self.ctc_head = CTCHead()
 
         # TODO 3: 載入 lm（dtype=torch.float32），凍結它的全部參數，
