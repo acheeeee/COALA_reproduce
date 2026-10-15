@@ -17,7 +17,7 @@ CTC_CHARS = " 'abcdefghijklmnopqrstuvwxyz"  # 28 個，實測得到
 CTC_BLANK_ID = 0
 # char -> id 的對照表，id 0 保留給 blank(空白字元)
 CTC_CHAR2ID = {c: i + 1 for i, c in enumerate(CTC_CHARS)} #要留[0]給 blank
-#enumerate()會把字串編號 
+#enumerate()會把字串編號
 #eg enumerate("abc") -> (0, 'a'), (1, 'b'), (2, 'c')這樣的編號
 
 
