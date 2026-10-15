@@ -12,43 +12,61 @@ arXiv:2607.08117 · INTERSPEECH 2026 · NTNU · 官方 code: `github.com/Guo0911
 
 ---
 
+## 🧭 三層閱讀法（2026-10-16 新增）
+
+筆記分三層，**由小到大**：
+
+| 層 | 單位 | 每篇記什麼 | 入口 | 篇數 |
+|---|---|---|---|---|
+| 1 | **物件**（常數、tensor、資料結構、模型零件、資料檔） | 存什麼、shape / dtype / 型別、從哪來到哪去 | [[物件 總覽]] | 126 |
+| 2 | **函式 / 類別 / 方法** | 功能、輸入、輸出、內部用到哪些物件、呼叫誰、被誰呼叫、原始碼 | [[函式 總覽]] | 76 |
+| 3 | **檔案（.py）** | 每篇開頭的「🧩 結構」：import 誰、被誰 import、定義了哪些函式、整合出什麼功能、資料流 | 下方表格 | 18 |
+
+**怎麼讀**：從檔案筆記的「🧩 結構」看全貌 → 點函式看細節 → 點物件看 shape。反過來，從物件筆記的「從哪來 → 到哪去」可以追一個 tensor 的一生（例：[[input_features]] → [[x (encoder 輸出)]] → [[h (adapter 輸出)]] → [[audio_tok]] → [[inputs_embeds]]）。
+
+> Obsidian 的 **Graph view** 和每篇底部的 **Backlinks** 會顯示「誰連到這篇」，就是「這個物件被哪些函式用到」。
+
+---
+
 ## 一個檔案一個筆記
 
 ### [[資料層 總覽]]
 
 | 檔案 | 做什麼 | 狀態 |
 |---|---|---|
-| [[parse_trans]] | 解析 `trans.txt` → `[(utt_id, text)]` | ✅ |
-| [[rare_words]] | 判定 rare word → **E⁺**（用 common 取補集） | ✅ |
-| [[build_manifest]] | 一次性建表 → `data/manifest/*.tsv` | ✅ |
-| [[figure1]] | 重現論文 Figure 1 的分布 | ✅ |
-| [[biasing]] | **E⁻** 採樣、`<unbiased>`、讀官方 ref | ✅ |
-| [[dataset]] | manifest → log-Mel tensor | ✅ |
+| [[parse_trans.py]] | 解析 `trans.txt` → `[(utt_id, text)]` | ✅ |
+| [[rare_words.py]] | 判定 rare word → **E⁺**（用 common 取補集） | ✅ |
+| [[build_manifest.py]] | 一次性建表 → `data/manifest/*.tsv` | ✅ |
+| [[figure1.py]] | 重現論文 Figure 1 的分布 | ✅ |
+| [[biasing.py]] | **E⁻** 採樣、`<unbiased>`、讀官方 ref | ✅ |
+| [[dataset.py]] | manifest → log-Mel tensor | ✅ |
 
 ### [[模型層 總覽]]
 
 | 檔案 | 做什麼 | 狀態 |
 |---|---|---|
-| [[modules]] | AudioAdapter / CTCHead / ctc_compress / CTC loss | ✅ |
-| [[prompt]] | embedding 查表 + 四段拼接 + labels 遮罩 | ✅ |
-| [[lora_setup]] | LoRA r=16，兩組具名 adapter | ✅ |
-| [[model]] | **COALAModel** 組裝者 | ✅ |
+| [[modules.py]] | AudioAdapter / CTCHead / ctc_compress / CTC loss | ✅ |
+| [[prompt.py]] | embedding 查表 + 四段拼接 + labels 遮罩 | ✅ |
+| [[lora_setup.py]] | LoRA r=16，兩組具名 adapter | ✅ |
+| [[model.py]] | **COALAModel** 組裝者 | ✅ |
+| [[projector.py]] | discriminative projector（Eq. 1、2）→ 每個 entity 一個分數 | ✅ |
 
 ### [[訓練與評估 總覽]]
 
 | 檔案 | 做什麼 | 狀態 |
 |---|---|---|
-| [[overfit_test]] | 2 句 × 200 步，架構驗證 | ✅ |
-| [[train_stage1]] | Stage 1 ASR 訓練 | 🔄 |
-| [[evaluate]] | `generate()` → 接 score.py | ☐ |
+| [[overfit_test.py]] | 2 句 × 200 步，架構驗證 | ✅ |
+| [[train_stage1.py]] | Stage 1 ASR 訓練 | 🔄 |
+| [[evaluate.py]] | `generate()` → 接 score.py | ☐ |
 
 ### [[工具 總覽]]
 
 | 檔案 | 產出的關鍵數字 | 狀態 |
 |---|---|---|
-| [[check_models]] | `D=576`、**預算 5.7M** | ✅ |
-| [[check_shape]] | `(B,1500,1280)`、固定 pad 30 秒 | ✅ |
-| [[test]] | 實驗沙盒（無保存價值） | 🗒️ |
+| [[check_models.py]] | `D=576`、**預算 5.7M** | ✅ |
+| [[check_shape.py]] | `(B,1500,1280)`、固定 pad 30 秒 | ✅ |
+| [[dump_tb.py]] | 從 tensorboard 還原 epoch 摘要 | ✅ |
+| [[test.py]] | 實驗沙盒（無保存價值） | 🗒️ |
 | [[效能分析與 bf16]] | encoder 佔 82%、**bf16 快 3.92x**（主題筆記） | ✅ |
 
 ---
@@ -91,9 +109,10 @@ Python 3.10.21 / torch 2.5.1+cu121 / **transformers 5.17.0**（⚠️ 論文時�
 | **`D`（LM hidden size）** | **576** ← Eq. 2 的 `D` |
 | LM vocab / 層數 | 49152 / 30 |
 | CTC 詞彙 | **29**（空格 + 撇號 + a-z + blank） |
-| Audio token（adapter 後） | 375 → `ctc_compress` → 約 89 |
+| Audio token（adapter 後） | stack=2：**750**（stack=4：375）→ `ctc_compress` → 理想 ≈ 字元數（例 89） |
 | **可訓練預算** | **5.7M** = 777M − 636.8M − 134.5M |
-| 實際可訓練（Stage 1） | **3,888,029** |
+| 實際可訓練（Stage 1） | stack=2：**2,413,469**（stack=4：3,888,029） |
+| projector（D′=576） | **332,929** |
 | LoRA rank | **16**（由預算反推，實測吻合） |
 | 訓練資料 | 281241 句 / **961.06 h** |
 
@@ -107,7 +126,7 @@ B 模型層  4 adapter+CTC ✅   5 Stage 1 訓練 ✅（兩輪：stack=4 / stack
              5a prompt ✅  5b LoRA ✅  5c CTC loss ✅
              5d 組裝 ✅    5e 過擬合 ✅  5f 腳本 ✅  5g 訓練 ✅
              5h WER 評估 ⚠️ evaluate.py 有 2 個 bug 待修
-          6 projector ☐ ← 下一步   7 三個 loss ☐   8 Stage 2 ☐
+          6 projector ✅   7 三個 loss ☐ ← 下一步   8 Stage 2 ☐
 C 評估層  9 BTI ☐   10 Recall ☐   11 WER ⚠️
 ```
 
