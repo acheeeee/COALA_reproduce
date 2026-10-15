@@ -8,3 +8,7 @@ __pycache__/
 .env
 .DS_Store
 wandb/
+
+# 本地筆記：Obsidian 的視窗狀態、論文原始壓縮檔（已解開在 paper/src）
+obsidian/.obsidian/workspace.json
+paper/*.tar.gz
