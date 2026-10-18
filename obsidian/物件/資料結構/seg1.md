@@ -13,7 +13,7 @@ tags: [COALA, 物件, 資料結構, prompt]
 |---|---|
 | 型別 | `str` |
 | 由誰產生 | [[build_seg1()]] |
-| token 數 | 16 |
+| token 數 | **15**（2026-10-18 實測；舊筆記寫 16 是錯的） |
 
 ```
 <|im_start|>system

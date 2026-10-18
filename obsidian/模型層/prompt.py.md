@@ -14,7 +14,7 @@ tags: [COALA, 模型層, 檔案]
 <!-- 結構:start -->
 ## 🧩 結構
 
-**整合出的功能**：把「文字 + 音訊向量」組成 LM 的輸入序列 —— 訓練版（含答案和 labels 遮罩）、生成版（只到 assistant 開頭），以及 batch padding。
+**整合出的功能**：把「文字 + 音訊向量」組成 LM 的輸入序列 —— Stage 1 訓練版（含答案和 labels 遮罩）、生成版（只到 assistant 開頭）、batch padding，以及 Stage 2 的「共用前綴 + K 條尾巴」。
 
 | 類型 | 內容 |
 |---|---|
@@ -32,9 +32,10 @@ tags: [COALA, 模型層, 檔案]
 | [[build_stage1_sample()]] | 一句 → [[sample (stage1 序列)]] |
 | [[pad_batch()]] | 多句 → [[padded]] |
 | [[build_gen_prompt()]] | 一句 → [[prompt (生成 prompt)]] |
-| [[prompt.main()]] | shape 與 labels 檢查 |
+| [[build_stage2_sample()]] | Stage 2：一句 + K 個候選 → 共用前綴 + K 條尾巴 → [[sample (stage2 序列)]] |
+| [[prompt.main()]] | Stage 1 shape 與 labels 檢查；Stage 2 shape 與斷詞邊界檢查 |
 
-**定義的常數**：[[IGNORE_INDEX]]、[[SYSTEM_PROMPT]]、[[INSTRUCTION_TEMPLATE]]、[[INSTRUCTION_NO_BIAS]]
+**定義的常數**：[[IGNORE_INDEX]]、[[SYSTEM_PROMPT]]、[[INSTRUCTION_TEMPLATE]]、[[INSTRUCTION_NO_BIAS]]、[[STAGE2_INSTRUCTION]]
 
 **資料流**：
 ```
@@ -42,6 +43,8 @@ seg1 / seg2 / target → encode → *_ids → embed_layer → *_emb
 cat([seg1_emb, audio_tok, seg2_emb, target_emb]) → inputs_embeds + labels + attention_mask
 ```
 圖中物件：[[seg1]]、[[seg2]]、[[target]]、[[embed_layer]]、[[audio_tok]]、[[inputs_embeds]]、[[labels]]、[[attention_mask]]
+
+**Stage 2 資料流**：[seg1 | audio | 題目] → [[prefix_embeds]]（K 條共用）；K 個 `" " + entity` → [[suffix_embeds]] + [[suffix_mask]] + [[entity_ids]]
 <!-- 結構:end -->
 
 ---
@@ -191,7 +194,7 @@ attention_mask = torch.ones(1, total, dtype=torch.long, device=dev)
 ```
 
 > [!success] Stage 2 的 KV cache 空間
-> Stage 2 的結構是 `seg1(16) + audio(89) + instruction + 單一 entity ≈ 128`，
+> Stage 2 的結構是 `seg1(16) + audio(89) + instruction + 單一 entity ≈ 128`，（2026-10-18 更正：seg1 實測是 **15** 個 token；Stage 2 的共用前綴 = seg1 15 + audio 89 + 題目 13 = **117**，見 [[build_stage2_sample()]]）
 > 其中 **`seg1 + audio` 這 105 個 token 對 121 次 forward 完全相同**
 > → KV cache 可省 **82%** 重複計算。這是 Stage 2 能跑得完的關鍵。
 

@@ -14,12 +14,14 @@ tags: [COALA, 工具, 檔案, 暫存]
 
 | 類型 | 內容 |
 |---|---|
-| import 外部 | `torch` |
+| import 外部 | `transformers`（`AutoTokenizer`） |
 | import 自己的 | 無 |
 | 被誰 import | 無 |
 | 定義的函式 | **無**（頂層腳本） |
 
-目前內容是在試 broadcasting：`(5, 1) * (1, 3)` → `(5, 3)`。這正是 [[projector.main()]] 造 [[mask (projector)]] 時用到的技巧。
+目前內容（2026-10-18）：試 BPE 斷詞 —— `"quilter"` 和 `" quilter"`（前面有空格）切出來的 token 是否不同，以及接在 [[STAGE2_INSTRUCTION]] 後面時整句怎麼切。這就是 [[build_stage2_sample()]] 決定用 `" " + e` 的依據。
+
+（之前的版本試的是 broadcasting：`(5, 1) * (1, 3)` → `(5, 3)`，[[projector.main()]] 造 [[mask (projector)]] 時用到。）
 <!-- 結構:end -->
 
 ---

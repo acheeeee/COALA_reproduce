@@ -49,7 +49,7 @@
         <mxCell id="n10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" value="modules.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;AudioAdapter + CTCHead&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="500" y="470" as="geometry" />
         </mxCell>
-        <mxCell id="n11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" value="prompt.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;embedding 查表 + 拼接&lt;/font&gt;" vertex="1">
+        <mxCell id="n11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" value="prompt.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;embedding 查表 + 拼接；Stage 2 前綴 / 尾巴&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="710" y="470" as="geometry" />
         </mxCell>
         <mxCell id="n12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;" value="lora_setup.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;LoRA r=16，asr / scoring&lt;/font&gt;" vertex="1">
@@ -73,13 +73,13 @@
         <mxCell id="lbl6" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#9673a6;" value="⑥ Stage 2 — Scoring 訓練" vertex="1">
           <mxGeometry height="18" width="240" x="700" y="668" as="geometry" />
         </mxCell>
-        <mxCell id="n26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="projector.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.1、2　576 → 1 分數&lt;/font&gt;" vertex="1">
+        <mxCell id="n26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="projector.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.1、2　576 → 1 分數&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="180" x="700" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="n27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;fontStyle=1;strokeWidth=2;" value="losses.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.3 disc、Eq.4 MPD、Eq.5 DPD&lt;/font&gt;" vertex="1">
+        <mxCell id="n27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;strokeWidth=2;" value="losses.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.3 disc、Eq.4 MPD、Eq.5 DPD + Bias-Loss&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="900" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="n28" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="train_stage2.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;M=120，121 次 forward + KV cache&lt;/font&gt;" vertex="1">
+        <mxCell id="n28" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="train_stage2.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;M=120，121 次 forward + KV cache（8b 起）&lt;/font&gt;" vertex="1">
           <mxGeometry height="50" width="190" x="800" y="780" as="geometry" />
         </mxCell>
         <mxCell id="n30" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;dashed=1;" value="exp/stage2/*.pt&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;projector + LoRA_scoring&lt;/font&gt;" vertex="1">

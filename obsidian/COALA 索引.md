@@ -18,9 +18,9 @@ arXiv:2607.08117 · INTERSPEECH 2026 · NTNU · 官方 code: `github.com/Guo0911
 
 | 層 | 單位 | 每篇記什麼 | 入口 | 篇數 |
 |---|---|---|---|---|
-| 1 | **物件**（常數、tensor、資料結構、模型零件、資料檔） | 存什麼、shape / dtype / 型別、從哪來到哪去 | [[物件 總覽]] | 126 |
-| 2 | **函式 / 類別 / 方法** | 功能、輸入、輸出、內部用到哪些物件、呼叫誰、被誰呼叫、原始碼 | [[函式 總覽]] | 76 |
-| 3 | **檔案（.py）** | 每篇開頭的「🧩 結構」：import 誰、被誰 import、定義了哪些函式、整合出什麼功能、資料流 | 下方表格 | 18 |
+| 1 | **物件**（常數、tensor、資料結構、模型零件、資料檔） | 存什麼、shape / dtype / 型別、從哪來到哪去 | [[物件 總覽]] | 134 |
+| 2 | **函式 / 類別 / 方法** | 功能、輸入、輸出、內部用到哪些物件、呼叫誰、被誰呼叫、原始碼 | [[函式 總覽]] | 83 |
+| 3 | **檔案（.py）** | 每篇開頭的「🧩 結構」：import 誰、被誰 import、定義了哪些函式、整合出什麼功能、資料流 | 下方表格 | 19 |
 
 **怎麼讀**：從檔案筆記的「🧩 結構」看全貌 → 點函式看細節 → 點物件看 shape。反過來，從物件筆記的「從哪來 → 到哪去」可以追一個 tensor 的一生（例：[[input_features]] → [[x (encoder 輸出)]] → [[h (adapter 輸出)]] → [[audio_tok]] → [[inputs_embeds]]）。
 
@@ -50,6 +50,7 @@ arXiv:2607.08117 · INTERSPEECH 2026 · NTNU · 官方 code: `github.com/Guo0911
 | [[lora_setup.py]] | LoRA r=16，兩組具名 adapter | ✅ |
 | [[model.py]] | **COALAModel** 組裝者 | ✅ |
 | [[projector.py]] | discriminative projector（Eq. 1、2）→ 每個 entity 一個分數 | ✅ |
+| [[losses.py]] | disc / MPD / DPD / Bias-Loss（Eq. 3–7）← **核心貢獻** | ✅ |
 
 ### [[訓練與評估 總覽]]
 
@@ -126,7 +127,7 @@ B 模型層  4 adapter+CTC ✅   5 Stage 1 訓練 ✅（兩輪：stack=4 / stack
              5a prompt ✅  5b LoRA ✅  5c CTC loss ✅
              5d 組裝 ✅    5e 過擬合 ✅  5f 腳本 ✅  5g 訓練 ✅
              5h WER 評估 ⚠️ evaluate.py 有 2 個 bug 待修
-          6 projector ✅   7 三個 loss ☐ ← 下一步   8 Stage 2 ☐
+          6 projector ✅   7 三個 loss ✅   8 Stage 2：8a prompt ✅ / 8b forward + KV cache ☐ ← 下一步
 C 評估層  9 BTI ☐   10 Recall ☐   11 WER ⚠️
 ```
 

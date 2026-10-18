@@ -21,8 +21,8 @@ aliases: [embeds]
 ## 長相
 ```
 [ seg1_emb | audio_tok | seg2_emb | target_emb ]
-   16          L'         n2          m
-例：16 +      89     +   43   +     12  = 160 / 2048（context window 只用 8%）
+   15          L'         n2          m
+例：15 +      89     +   44   +     12  = 160 / 2048（context window 只用 8%）
 ```
 → [[seg1_emb]]、[[audio_tok]]、[[seg2_emb]]、[[target_emb]]
 

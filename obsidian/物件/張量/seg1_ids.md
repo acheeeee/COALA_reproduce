@@ -13,7 +13,7 @@ dtype: int64
 
 | 項目 | 內容 |
 |---|---|
-| shape | `(n1,)`，實測 **n1 = 16** |
+| shape | `(n1,)`，實測 **n1 = 15** |
 | dtype | `torch.long` |
 | 定義於 | [[build_stage1_sample()]]、[[build_gen_prompt()]] |
 
@@ -24,4 +24,4 @@ seg1_ids = encode(seg1, tokenizer, dev)      # add_special_tokens=False
 → [[embed_layer]] 查表 → [[seg1_emb]]
 
 > [!tip] Stage 2 的 KV cache 關鍵
-> seg1 對**每一句、每一個候選**都完全相同，加上 [[audio_tok]] 之後（≈105 token）在同一句的 121 次 forward 中也相同 → 可以只算一次。
+> seg1 對**每一句、每一個候選**都完全相同，Stage 2 再加上 [[audio_tok]] 和題目（15 + 89 + 13 = 117 token，見 [[prefix_embeds]]）在同一句的 121 次 forward 中也相同 → 可以只算一次。

@@ -2,7 +2,7 @@
 tags: [COALA, 物件, 資料結構, biasing]
 類別: 資料結構
 型別: list[str]
-aliases: [full_list, full, full2, E]
+aliases: [full_list, full, full2, E, candidates, cands]
 ---
 # full_list (E)
 
@@ -19,4 +19,5 @@ aliases: [full_list, full, full2, E]
 
 ## 去處
 - [[split_pos_neg()]] → [[pos_idx]]、[[neg_idx]]
-- Stage 2（尚未實作）：每個元素各跑一次 LM forward → 121 個 [[s (entity 分數)]]
+- [[build_stage2_sample()]] 的 `candidates` 參數：每個元素變成一條尾巴
+- Stage 2（8b 尚未實作）：→ 121 個 [[s (entity 分數)]]

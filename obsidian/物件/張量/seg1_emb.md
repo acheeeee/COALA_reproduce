@@ -13,7 +13,7 @@ dtype: float32
 
 | 項目 | 內容 |
 |---|---|
-| shape | `(n1, 576)` = `(16, 576)` |
+| shape | `(n1, 576)` = `(15, 576)` |
 | 定義於 | [[build_stage1_sample()]]、[[build_gen_prompt()]] |
 
 ```python

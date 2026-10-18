@@ -4,7 +4,7 @@
 > `EXPERIMENTS.md`（實驗數據）、`obsidian/`（每支檔案的詳細筆記）、
 > `COALA_pipeline.drawio`（流程圖）一起看。
 >
-> 最後更新：2026-10-12 23:00
+> 最後更新：2026-10-18
 
 ---
 
@@ -50,9 +50,9 @@ B 模型層
    4. audio adapter + CTC            ✅  含 ctc_compress
    5. Stage 1 ASR 訓練               ✅  兩輪完成（stack=4 / stack=2）
       5h WER 評估                    ⚠️  evaluate.py 有 2 個 bug 待修
-   6. discriminative projector       ☐  ← 下一步
-   7. 三個 loss                      ☐  ← 論文核心貢獻
-   8. Stage 2 scoring 訓練           ☐  含 121 次 forward 的 KV cache
+   6. discriminative projector       ✅  332,929 參數，5 項檢查全過（10-15）
+   7. 三個 loss                      ✅  disc / MPD / DPD / Bias-Loss（10-18）
+   8. Stage 2 scoring 訓練           🔄  8a prompt 組裝 ✅ / 8b forward + KV cache ☐ ← 下一步
 
 C 評估層
    9. BTI top-10 + <unbiased> 門檻   ☐
@@ -71,7 +71,12 @@ C 評估層
 | `test.py` | 🗒️ 實驗沙盒，建議改名 `scratch.py` |
 | `evaluate.py` | ⚠️ 能跑但有 2 個 bug |
 
-**還沒建立**：`projector.py` `losses.py` `train_stage2.py` `bti.py` `recall.py`
+**還沒建立**：`train_stage2.py` `bti.py` `recall.py`（`projector.py`、`losses.py` 已完成；`prompt.py` 新增 `build_stage2_sample`）
+
+> [!note] 10-18 新查到的事
+> - **auxiliary log loss 的定義**：COALA 論文和官方 code 都沒有；出自 Huang & Wang 2025 Eq. 2：`0.9·disc + 0.1·log loss`，log loss = 正樣本被 LM 生成的負 log 機率（不含 `<unbiased>`，加總）
+> - **官方 code 的超參數**（`Guo0911/COALA` 的 `stage_2.sh`）：LoRA **r=8**（我反推 16）、lr 1e-4、grad accumulation 4、Stage 2 共 490,000 步（7 × 70,000）、訓練用 N=5000 的清單 → 等 8b 寫完再對照
+> - seg1 實測 **15** token（舊筆記寫 16）；Stage 2 共用前綴 = 15 + L' + 13
 
 ---
 
