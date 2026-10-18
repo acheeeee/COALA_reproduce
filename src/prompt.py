@@ -188,6 +188,73 @@ def build_gen_prompt(audio_tokens, entity_list, tokenizer, embed_layer):
 
     return {"inputs_embeds": inputs_embeds, "attention_mask": attention_mask}
 
+
+STAGE2_INSTRUCTION = "Please determine if the text appears in the input speech. Text:"
+# 論文圖 2(a) 只露出 "...Please determine if the text appears in the input speech"，其餘自訂
+
+def build_stage2_sample(audio_tokens, candidates, tokenizer, embed_layer):
+    """
+    Stage 2：一句話 + K 個候選 → 一段共用前綴 + K 條尾巴（尾巴只放 entity）
+
+    Args:
+        audio_tokens: (L', 576)   ctc_compress 的輸出
+        candidates:   list[str]   長度 K，index 0 是 <unbiased>（= add_unbiased 的輸出）
+        tokenizer, embed_layer:   同 Stage 1
+
+    Returns dict:
+        prefix_embeds (P, 576)      seg1 + audio + 題目，K 條共用
+        suffix_embeds (K, S, 576)   每條尾巴 = 一個 entity 的 token 向量，右側補 0
+        suffix_mask   (K, S) long   1 = entity token，0 = pad
+        entity_ids    (K, S) long   entity 的 token id，pad 位置填 IGNORE_INDEX
+    """
+    dev = audio_tokens.device
+
+    # TODO(1) 前綴的兩段文字：seg1 用 build_seg1()，題目用 STAGE2_INSTRUCTION
+    #         各自 encode() → embed_layer() 查表
+    seg1 = build_seg1(tokenizer)
+    seg1_ids = encode(seg1, tokenizer, dev)
+    inst_ids = encode(STAGE2_INSTRUCTION, tokenizer, dev)
+    seg1_emb = embed_layer(seg1_ids)
+    inst_emb = embed_layer(inst_ids)
+
+    # TODO(2) prefix_embeds = cat([seg1_emb, audio_tokens, inst_emb], dim=0)
+    prefix_embeds = torch.cat([seg1_emb, audio_tokens, inst_emb], dim=0)
+    
+    # TODO(3) 每個候選各自 encode() → 得到 K 個長度不同的 id tensor
+    #         要encode(" " + e)
+    cand_ids = []
+    for e in candidates:
+        cand_ids.append(encode(" "+ e, tokenizer, dev))
+
+    # TODO(4) K = 候選數、S = 最長的 token 數
+
+    K = len(candidates)
+    lens = []
+    for n in cand_ids:
+        lens.append(len(n))
+    #等價 lens = [len(n) for n in cand_ids] 一行版本
+    S = max(lens)
+    suffix_embeds  = torch.zeros((K, S, 576), dtype=torch.float32, device=dev)
+    suffix_mask    = torch.zeros((K, S), dtype=torch.long, device=dev)
+    entity_ids     = torch.full((K, S), IGNORE_INDEX, dtype=torch.long, device=dev)
+
+
+    # TODO(5) 逐個候選填進去：先用 embed_layer 查表，再放進第 i 列的前 n 格
+    #         （參考 pad_batch() 的右 pad 寫法）
+    for i, ids in enumerate(cand_ids):
+        n = len(ids)                            # 第 i 個候選的 token 數,整數
+        suffix_embeds[i, :n] = embed_layer(ids) # (n, 576),向量
+        suffix_mask[i, :n] = 1                  # 標成「真的 token」
+        entity_ids[i, :n] = ids                 # 這個候選的 token 編號
+
+    return {
+        "prefix_embeds": prefix_embeds,
+        "suffix_embeds": suffix_embeds,
+        "suffix_mask": suffix_mask,
+        "entity_ids": entity_ids,
+    }
+
+
 def main():
     from transformers import AutoTokenizer, AutoModelForCausalLM
 
@@ -217,7 +284,34 @@ def main():
         f"文字 token 總數: "
         f"{len(tok(build_seg1(tok), add_special_tokens=False)['input_ids']) + len(tok(build_seg2(entities, tok), add_special_tokens=False)['input_ids'])}"
     )
+        # ── Stage 2 ──
+    print("\n========== Stage 2 ==========")
+    cands = ["<unbiased>", "watson", "solved", "craswellers"]
+    s2 = build_stage2_sample(audio, cands, tok, embed)
 
+    n_seg1 = len(tok(build_seg1(tok), add_special_tokens=False)["input_ids"])
+    n_inst = len(tok(STAGE2_INSTRUCTION, add_special_tokens=False)["input_ids"])
+    print(f"prefix_embeds  {tuple(s2['prefix_embeds'].shape)}  "
+          f"(預期 ({n_seg1} + {audio.shape[0]} + {n_inst}, 576))")
+    print(f"suffix_embeds  {tuple(s2['suffix_embeds'].shape)}")
+    print(f"suffix_mask    {tuple(s2['suffix_mask'].shape)}")
+    print(f"entity_ids     {tuple(s2['entity_ids'].shape)}")
+
+    print("\n每個候選：")
+    for i, e in enumerate(cands):
+        m = s2["suffix_mask"][i].bool()
+        ids = s2["entity_ids"][i][m]
+        print(f"  {e:<12} {int(m.sum())} 個 token  decode={tok.decode(ids)!r}")
+
+    # 斷詞邊界檢查：分開 encode 的結果，必須等於「題目 + entity」整句一起 encode
+    print("\n斷詞邊界檢查：")
+    for i, e in enumerate(cands):
+        joint = tok(STAGE2_INSTRUCTION + " " + e, add_special_tokens=False)["input_ids"]
+        inst = tok(STAGE2_INSTRUCTION, add_special_tokens=False)["input_ids"]
+        m = s2["suffix_mask"][i].bool()
+        mine = s2["entity_ids"][i][m].tolist()
+        print(f"  {e:<12} {'✅' if joint == inst + mine else '❌'}  "
+              f"整句={joint[len(inst):]}  分開={mine}")
 
 if __name__ == "__main__":
     main()

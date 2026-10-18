@@ -39,6 +39,18 @@ def check(name, got, want):
     ok = abs(got.item() - want) < 1e-5
     print(f"{name:<20} {got.item():.6f}  (預期 {want:.6f})  {'✅' if ok else '❌'}")
 
+def bias_loss(s, pos, logp, beta=0.9):
+    """
+    Baseline Bias-Loss（Huang & Wang 2025 Eq. 2）
+    s:    (K,)  分數
+    pos:  (K,)  bool
+    logp: (K,)  每個候選 entity 整串 token 的 log P(e_i | X)（由 forward_stage2 算好傳進來）
+    """
+    pos_log = pos.clone()
+    pos_log[0] = False                     # 排除 <unbiased>
+    log_loss = -logp[pos_log].sum()        # 負號 + 加總 → 純量；空集合 = 0
+    loss = (1 - beta) * log_loss + beta * disc_loss(s, pos)
+    return loss
 
 def main():
     # 論文圖 2(b) 的例子：<unbiased>, Watson, solved, survey, collect
@@ -67,6 +79,10 @@ def main():
         fn(s, pos).backward()
         print(f"{fn.__name__:<20} {[round(g, 4) for g in s.grad.tolist()]}")
 
-
+    print("── 測試 5：Bias-Loss（disc + 0.1 × log）")
+    logp = torch.tensor([-5.0, -2.0, -3.0, -8.0, -9.0])
+    check("bias", bias_loss(s, pos, logp), 1.535800)
+    check("bias (單一正樣本)", bias_loss(s, pos1, logp), 4.635800)
+    
 if __name__ == "__main__":
     main()
