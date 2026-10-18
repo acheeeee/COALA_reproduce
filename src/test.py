@@ -1,11 +1,11 @@
-import torch
+from transformers import AutoTokenizer
+tok = AutoTokenizer.from_pretrained("HuggingFaceTB/SmolLM2-135M-Instruct")
+inst = "Please determine if the text appears in the input speech. Text:"
 
-x = torch.arange(5)[:,None]
-y = torch.arange(3)[None, :]
-z = torch.arange(4)
-print(f"x shape = {x.shape}")
+for e in ["quilter", " quilter"]:
+    ids = tok(e, add_special_tokens=False)["input_ids"]
+    print(repr(e), ids, tok.convert_ids_to_tokens(ids))
 
-print(f"x column shape = {(x*y).shape }")
-
-# print(f"x row  shape = {x[None, :].shape}")
+whole = tok(inst + " quilter", add_special_tokens=False)["input_ids"]
+print(tok.convert_ids_to_tokens(whole)[-4:])
 
