@@ -53,7 +53,9 @@ class COALAModel(nn.Module):
         """(B, 80, 3000) → h (B, 375, 576), ctc_logits (B, 375, 29)"""
         # TODO 5: encoder 用 with torch.no_grad()（它是凍結的，不用算梯度）
         #         然後 adapter、ctc_head
-        with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
+        # 評估腳本可把 self.amp_dtype 改成 fp16 或 None（2080 Ti 沒有原生 bf16）；訓練時維持預設 bf16
+        amp = getattr(self, "amp_dtype", torch.bfloat16)
+        with torch.no_grad(), torch.autocast("cuda", dtype=amp or torch.float32, enabled=amp is not None):
             out = self.encoder(input_features)
         x = out.last_hidden_state.float()
         h = self.adapter(x)
