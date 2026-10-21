@@ -10,6 +10,11 @@
     3. 名次不含 <unbiased>（它不是真的詞）
     4. 某個正樣本根本不在清單裡時，Recall@X 以「整份清單長度」計
 
+⚠️ 官方 code（Guo0911/COALA scripts/evaluation.py 的 recall_score）的 Recall@X 和論文文字不同：
+    把「所有句子的所有正樣本名次」放在一起排序，取第 ceil(總數 × X%) 個（0-based 索引）
+    = 全體正樣本名次的第 X 百分位，不是逐句平均。論文表格的數字是用這個算的。
+    → 這裡兩種都算：Recall@X（論文文字）與 Recall@X·官方（官方 code）
+
 用法
     python src/recall.py exp/score/dpd.test-clean.N5000.jsonl exp/score/dpd.test-other.N5000.jsonl
 """
@@ -46,6 +51,13 @@ def recall_at(rows, x):
     return sum(need) / len(need)
 
 
+def recall_at_official(rows, x):
+    """Recall@X 的官方 code 算法：全體正樣本名次排序後，取索引 ceil(總數 × X%) 的那個（0-based）。"""
+    ranks = sorted(k for r in rows for k in r["pos_ranks"])
+    idx = min(math.ceil(len(ranks) * x / 100), len(ranks) - 1)
+    return ranks[idx]
+
+
 def recall_hash(rows, x):
     """Recall#X：每句取前 X 名 → (micro %, macro %)。"""
     hit = tot = 0
@@ -77,8 +89,10 @@ def report(path):
     print(f"   {len(rows)} 句（{n_pos_utt} 句有 rare word），平均 {n_cand:.0f} 個候選")
 
     at = {x: recall_at(rows, x) for x in AT_X}
+    at_off = {x: recall_at_official(rows, x) for x in AT_X}
     hs = {x: recall_hash(rows, x) for x in HASH_X}
-    print("   " + "  ".join(f"Recall@{x}={at[x]:.1f}" for x in AT_X))
+    print("   " + "  ".join(f"Recall@{x}={at[x]:.1f}" for x in AT_X) + "   ← 論文文字定義（逐句平均）")
+    print("   " + "  ".join(f"Recall@{x}={at_off[x]}" for x in AT_X) + "   ← 官方 code 定義（全體第 X 百分位）")
     print("   " + "  ".join(f"Recall#{x}={hs[x][0]:.2f}%" for x in HASH_X))
     print("   (macro) " + "  ".join(f"#{x}={hs[x][1]:.2f}%" for x in HASH_X))
 
@@ -87,6 +101,7 @@ def report(path):
           f"平均每句 {above:.1f} 個候選高於門檻")
     return {"file": str(path), "utts": len(rows), "cand": round(n_cand),
             **{f"R@{x}": round(at[x], 2) for x in AT_X},
+            **{f"R@{x}_official": at_off[x] for x in AT_X},
             **{f"R#{x}": round(hs[x][0], 2) for x in HASH_X}}
 
 
