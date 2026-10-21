@@ -21,6 +21,9 @@
 | adapter / CTC | 未寫 | frame stacking ×2 + 字元 CTC（29） | 同左 |
 | LoRA | 未寫（官方 code：r=8，7 種 Linear） | r=16，q_proj / v_proj | 同左 |
 | N=5000 清單 | 自行抽樣，未公開 | 自己抽，`Random(f"0-{utt_id}")` | 同左 |
+| Stage 1 CTC 權重 | 論文 0.3（第 268 行）；**官方 `stage_1.sh` 用 `--ctc-weight 0.5`** | 0.3（照論文） | 0.3 |
+| early stopping | 論文未寫；官方：看 `valid/loss`、patience **10**、min_delta 0（`train_ASR.py` 第 142–147 行、`train_Bias.py` 第 143–148 行）→ Stage 1 共 10 epochs、Stage 2 共 7 epochs，**實際上不會觸發** | `--early-stop-patience 10`（同官方） | 同左 |
+| 選 checkpoint | 官方：Stage 1 看 `valid/wer`、Stage 2 看 `valid/loss`，存前 3 名 | Stage 1 看 val loss、Stage 2 看 val Recall#20，存最好的 1 個 | 同左 |
 | GPU | RTX 3090 | 3090 / A5000（訓練）、2080 Ti（評估） | 2080 Ti（Stage 1）、3090 / A5000（Stage 2） |
 
 > **70,000 的出處（2026-10-21 查證）**：論文只寫「7 epochs、batch size 1」（`main.tex` 第 270 行），**沒有寫每個 epoch 用幾句**。
