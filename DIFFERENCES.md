@@ -1,0 +1,104 @@
+# DIFFERENCES — 我們的實作 vs 論文 vs 官方程式碼
+
+> **收錄範圍**：論文或官方程式碼**有明確寫**、而我們**做法不同**的地方。兩邊都沒寫的（例如我們自訂的 seed）不列。
+> 官方程式碼 = `github.com/Guo0911/COALA`，commit `7b2e008`（2026-09-29）。
+> 建立：2026-10-21
+>
+> 符號：★ 會明顯影響結果數字 · ⏳ 正在補齊 · ✅ 已對齊
+
+---
+
+## A. 論文有寫、我們不同
+
+| # | 項目 | 論文 | 我們 | 說明 |
+|---|---|---|---|---|
+| A1 ⏳ | 訓練資料 | 960 h（4.1 節） | 目前 100 h | 960 h 版本進行中；最後兩組都會報告 |
+| A2 ★ | Recall@X 的算法 | 文字定義：「**逐句**需要前幾名才達 X% recall，再取**平均**」（4.2 節第 238 行） | 照論文文字 | **但論文表格的數字是官方 code 算的，算法不同**（見 C1）→ `recall.py` 兩種都印 |
+| A3 | Bias-Loss 的權重 | 「auxiliary log loss (weight 0.1)」（第 274 行），字面上像 1.0·disc + 0.1·log | 0.9·disc + 0.1·log | 照 log loss 的原始出處 Huang & Wang 2025 Eq. 2（β = 0.9）。論文沒寫 disc 的權重 |
+| A4 | 總參數量 | 777 M（4.4 節） | 約 775.0 M = 771.3 M（凍結）+ 2.41 M（Stage 1）+ 1.25 M（Stage 2） | 差異小；但**官方 code 自己也對不上 777 M**（見 B1） |
+
+論文有寫、而我們**一致**的：Whisper-large-v2 + SmolLM2-135M-Instruct、兩階段訓練、Stage 1 10 epochs / batch 4 / CTC 0.3 + CE 1.0 / 10 個 entity 最多 5 個正樣本、Stage 2 7 epochs / batch 1 / M = 120、只訓練 projector + 新 LoRA、Eq. 1 長度正規化、Eq. 2 兩層 MLP、Eq. 3–7 三個 loss、BTI top-10 + `<unbiased>` 門檻、5K common / 209.2K rare（Le et al. 2021）、dev-clean 選模型、RTX 3090。
+
+---
+
+## B. 官方程式碼有寫、我們不同（論文沒寫）
+
+### B-1 模型架構
+
+| # | 項目 | 官方 code | 我們 | 位置（官方） |
+|---|---|---|---|---|
+| B1 ★ | **CTC 詞彙** | **LM 的 BPE 詞彙 49,152**，blank = `<\|im_end\|>` | 字元 29 個 | `models/asr.py` 第 63–68 行 |
+| B2 ★ | **CTC 模組** | 兩個 head：CTC + **CTC-gate**（把 CTC logits 經 conv、MLP 後**軟性融合**回 hidden state），兩個 CTC loss 相加 | 一個 head；用 argmax **硬性挑選** frame（`ctc_compress` 丟掉 blank 與重複） | `models/modules/ctc.py` |
+| B3 ★ | **餵給 LM 的音訊 token 數** | **全部保留**，每句固定 ≈ 374 個 | 隨內容變動，≈ CTC 預測的字元數 | 同上 |
+| B4 ★ | **Adapter** | CNN connector（3 層 Conv1d，**stride 4**）+ Conv-Branchformer（2 層、4 heads） | frame stacking **×2** + 1 層 Linear | `stage_1.sh`、`modules/connector.py`、`modules/adapter.py` |
+| B5 | LoRA | **r = 8**、alpha 32、dropout 0.05、`all-linear`（q/k/v/o/gate/up/down），兩個 stage 都是 | r = 16、alpha 32、dropout 0.05、只掛 q_proj / v_proj | `modules/backbone.py`、`models/bias.py` 第 109–115 行 |
+| B6 | Projector 中間層 D′ | **512** | 576 | `models/bias.py` 第 71–75 行 |
+| B7 | Encoder 精度 | fp32（離線預先算好特徵） | bf16 autocast（2080 Ti 上 fp16） | `scripts/extract_feature2pt.py` |
+
+> **B1 推翻了我們的參數預算推論。** 我們曾用「777 M − 771.3 M = 5.7 M」推論 CTC 詞彙不可能是 49,152、LoRA rank ≈ 16。但官方 code 用的就是 49,152：光 CTC 兩個 49,152 維的輸出層就約 57 M，加上 gate 約 68 M → 官方模型總參數至少約 840 M，**和論文寫的 777 M 對不上**。所以 777 M 不能拿來反推設定。我們的字元 CTC、r = 16 仍然是合法選擇（論文沒指定），但 thesis 裡要改寫依據。
+>
+> **B1 + B4 剛好印證了 STATUS 的核心發現**（adapter 降採樣率 × CTC 單位的耦合約束）：官方選 BPE（≈ 3–4 token/秒）配 stride 4（12.5 位置/秒）＝ STATUS 裡的 **H2**，滿足約束；我們選字元配 stride 2 ＝ **H1**，也滿足約束。
+
+### B-2 資料與 prompt
+
+| # | 項目 | 官方 code | 我們 | 位置（官方） |
+|---|---|---|---|---|
+| B8 ★ | **正樣本 E⁺ 的判定** | `all_rare_words.txt` ∩ 句子的字（**漏掉 OOV 詞**，例如 craswellers） | 不在 `common_words_5k.txt` 的字（補集），和 fbai 官方 ref 2620/2620 一致 | `scripts/extract_feature2pt.py` |
+| B9 | 文字正規化 | Whisper `EnglishTextNormalizer` 處理逐字稿（訓練與評分） | LibriSpeech 原文轉小寫 | 同上、`scripts/evaluation.py` |
+| B10 | >30 秒的訓練句 | 不過濾 | 過濾（38 句，0.013%） | `recipes/dataset.py` |
+| B11 | Stage 1 prompt 文字與順序 | system：「…Please refer to the keyword to transcribe the input speech.」；user：`[keyword]{entity…}` **在音訊前面** → `[speech]` 音訊 | system：「You are a speech recognition assistant.」；user：音訊 → 「Transcribe the speech. The following entities may appear: …」 | `recipes/train_ASR.py` 第 61–62 行 |
+| B12 | Stage 1 的 entity 清單 | **含 `<unbiased>`**；干擾詞取自隨機 10 句**其他句子**的 rare word；**隨機排序** | 不含 `<unbiased>`；干擾詞取自整個 rare word 詞池；字母排序 | `recipes/dataset.py` `ASR_Dataset` |
+| B13 | Stage 2 prompt 順序 | 題目放在 **system**（音訊前面）；音訊在 user；entity 放在 **assistant** turn | 音訊 → 題目 → entity，全在 user turn（**照論文圖 2(a) 的順序**） | `recipes/train_Bias.py` 第 61–62 行 |
+
+### B-3 訓練
+
+| # | 項目 | 官方 code | 我們 | 位置（官方） |
+|---|---|---|---|---|
+| B14 ★ | Stage 1 CTC 權重 | **0.5**（且 CTC + CTC-gate 兩個 loss 相加） | **0.3**（照論文第 268 行） | `stage_1.sh`、`models/asr.py` |
+| B15 | Optimizer / scheduler | AdamW、**weight decay 0.05**、**CosineAnnealing（每 epoch）**、無 warmup | AdamW、weight decay 0.01、前 3% linear warmup + linear decay（每次更新） | `models/asr.py`、`models/bias.py` `configure_optimizers` |
+| B16 | Stage 1 gradient accumulation | **4**（等效 batch 16） | 無（batch 4） | `stage_1.sh` |
+| B17 ⏳ | Stage 2 每 epoch 句數 | 70,000 | 100 h：28,539（全部）；960 h 會用 70,000 | `stage_2.sh` 第 29 行 |
+| B18 | 驗證 | 每 epoch 跑**完整** dev-clean | 每 2000 / 5000 步 + 每 epoch 結束，跑 dev-clean 前 200 句 | `recipes/train_*.py` |
+| B19 | 選 checkpoint | Stage 1 看 teacher-forcing `valid/wer`、Stage 2 看 `valid/loss`，存前 3；**推論用 `last.ckpt`（最後一個）** | Stage 1 看 val loss、Stage 2 看 val Recall#20，存最好的 1 個，推論用 `best.pt` | `train_*.py`、`inference.sh` |
+| ✅ | Early stopping | 看 valid/loss、patience 10 | 相同（`--early-stop-patience`，預設 10） | `train_*.py` |
+| ✅ | Stage 2 gradient accumulation | 4 | 4 | `stage_2.sh` |
+| ✅ | lr | 1e-4 | 1e-4 | `stage_*.sh` |
+| ✅ | Stage 2 只啟用 scoring LoRA | 是 | 是 | `models/bias.py` |
+| ✅ | entity 斷詞 | `" " + entity.lower()` | 相同 | `models/bias.py` |
+
+### B-4 推論與評分
+
+| # | 項目 | 官方 code | 我們 | 位置（官方） |
+|---|---|---|---|---|
+| B20 ★ | **解碼** | **beam 20 + sampling**（temperature 0.8、top-k 20、top-p 0.5）、repetition penalty 1.1、no-repeat 3-gram、length penalty 0.5、最多 300 token | **greedy**、最多 200 token | `recipes/inference.py` 第 312–322 行 |
+| B21 ★ | **BTI** | 對「清單 + `<unbiased>`」排序取前 10，**沒有用 `<unbiased>` 過濾**；`<unbiased>` 若在前 10 名也一起寫進 ASR prompt | 取前 10 後，**丟掉分數低於 `<unbiased>` 的**（照論文第 281 行） | `recipes/inference.py` 第 239 行 |
+| B22 | 測試清單 N=500 / 1000 | **自己產生**（seed 42） | fbai 官方 ref 檔 | `scripts/create_bias_list.py` |
+| B23 | B-WER 的 biasing word | 清單 ∩ 參考答案的字（配 B8 的 E⁺ 定義），文字先經 Whisper normalizer、轉大寫 | fbai `score.py`：ref 檔第 3 欄 | `scripts/evaluation.py` |
+| C1 ★ | **Recall@95 的算法** | 所有句子的正樣本名次**合在一起**排序，取第 ceil(總數 × 95%) 個 = 全體第 95 百分位 | 照論文文字（逐句平均）；**`recall.py` 兩種都印**（2026-10-21 起） | `scripts/evaluation.py` `recall_score` |
+| C2 | 名次是否含 `<unbiased>` | 含（它也參與排序） | 不含 | 同上 |
+| ✅ | Recall#X | 全體合計（micro） | 相同（主要數字用 micro） | 同上 |
+
+---
+
+## C. 論文和官方程式碼**彼此矛盾**的地方
+
+這些我們都**照論文**做，thesis 裡要註明。
+
+| 項目 | 論文 | 官方 code |
+|---|---|---|
+| Stage 1 CTC 權重 | 0.3 | 0.5（+ gate loss） |
+| BTI 的 `<unbiased>` 門檻 | 「用它的分數當門檻過濾低分 entity」 | 沒有過濾，只是一起排序 |
+| Recall@X | 逐句平均 | 全體百分位 |
+| Stage 2 輸入順序 | 圖 2(a)：[Audio][Instruction][Entity] | [Instruction][Audio][Entity] |
+| 總參數量 | 777 M | 估計 ≥ 840 M |
+
+---
+
+## 對結果影響最大的幾項（看數字時先想到它們）
+
+| 會影響 | 主要原因 |
+|---|---|
+| **WER / U-WER / B-WER**（Table 2） | B20 解碼（greedy vs beam 20）、B1–B4 架構、B8 E⁺ 定義、B9 正規化、A1 資料量 |
+| **Recall@95**（Table 1） | C1 算法不同 → 和論文比時要用「官方 code 定義」那一行 |
+| **Recall#20 / #50**（Table 1） | 主要是 A1 資料量與 B1–B4 架構；算法和官方一致 |
+| **+ BTI 的 B-WER** | B21 門檻做法不同、B20 解碼 |
