@@ -13,7 +13,9 @@
 ⚠️ 官方 code（Guo0911/COALA scripts/evaluation.py 的 recall_score）的 Recall@X 和論文文字不同：
     把「所有句子的所有正樣本名次」放在一起排序，取第 ceil(總數 × X%) 個（0-based 索引）
     = 全體正樣本名次的第 X 百分位，不是逐句平均。論文表格的數字是用這個算的。
-    → 這裡兩種都算：Recall@X（論文文字）與 Recall@X·官方（官方 code）
+    另外官方的名次**包含 <unbiased>**（它也參與排序），所以 <unbiased> 排在某個正樣本前面時，
+    那個正樣本的名次會 +1。
+    → 這裡兩組都算：論文文字定義（名次不含 <unbiased>）與官方 code 定義（名次含 <unbiased>）
 
 用法
     python src/recall.py exp/score/dpd.test-clean.N5000.jsonl exp/score/dpd.test-other.N5000.jsonl
@@ -51,11 +53,23 @@ def recall_at(rows, x):
     return sum(need) / len(need)
 
 
+def official_ranks(r):
+    """官方的名次含 <unbiased>：它的名次是 n_above_unb + 1，排在它後面的正樣本名次 +1。"""
+    return [k + (k > r["n_above_unb"]) for k in r["pos_ranks"]]
+
+
 def recall_at_official(rows, x):
     """Recall@X 的官方 code 算法：全體正樣本名次排序後，取索引 ceil(總數 × X%) 的那個（0-based）。"""
-    ranks = sorted(k for r in rows for k in r["pos_ranks"])
+    ranks = sorted(k for r in rows for k in official_ranks(r))
     idx = min(math.ceil(len(ranks) * x / 100), len(ranks) - 1)
     return ranks[idx]
+
+
+def recall_hash_official(rows, x):
+    """Recall#X 的官方 code 算法：全體正樣本中，名次（含 <unbiased>）≤ X 的比例（%）。"""
+    ranks = [k for r in rows for k in official_ranks(r)]
+    tot = sum(len(r["positives"]) for r in rows)
+    return 100 * sum(1 for k in ranks if k <= x) / tot
 
 
 def recall_hash(rows, x):
@@ -90,10 +104,12 @@ def report(path):
 
     at = {x: recall_at(rows, x) for x in AT_X}
     at_off = {x: recall_at_official(rows, x) for x in AT_X}
+    hs_off = {x: recall_hash_official(rows, x) for x in HASH_X}
     hs = {x: recall_hash(rows, x) for x in HASH_X}
     print("   " + "  ".join(f"Recall@{x}={at[x]:.1f}" for x in AT_X) + "   ← 論文文字定義（逐句平均）")
     print("   " + "  ".join(f"Recall@{x}={at_off[x]}" for x in AT_X) + "   ← 官方 code 定義（全體第 X 百分位）")
     print("   " + "  ".join(f"Recall#{x}={hs[x][0]:.2f}%" for x in HASH_X))
+    print("   " + "  ".join(f"Recall#{x}={hs_off[x]:.2f}%" for x in HASH_X) + "   ← 官方 code 定義（名次含 <unbiased>）")
     print("   (macro) " + "  ".join(f"#{x}={hs[x][1]:.2f}%" for x in HASH_X))
 
     n_empty, acc, above = unbiased_stats(rows)
@@ -102,7 +118,8 @@ def report(path):
     return {"file": str(path), "utts": len(rows), "cand": round(n_cand),
             **{f"R@{x}": round(at[x], 2) for x in AT_X},
             **{f"R@{x}_official": at_off[x] for x in AT_X},
-            **{f"R#{x}": round(hs[x][0], 2) for x in HASH_X}}
+            **{f"R#{x}": round(hs[x][0], 2) for x in HASH_X},
+            **{f"R#{x}_official": round(hs_off[x], 2) for x in HASH_X}}
 
 
 def main():

@@ -10,6 +10,12 @@
     stage1  和 Stage 1 訓練時相同：10 個 entity，最多 5 個正樣本
     file    從 --entities 指定的 JSON 讀每句的 entity 清單
             （bti.py 的輸出，或 score_stage2.py --dump-lists 的完整清單 → 重現 N=5000 OOM）
+
+--decode
+    greedy    每步取機率最高的 token（預設，可重現）
+    official  官方 code（recipes/inference.py 第 312–322 行）的設定：
+              beam 20 + sampling（temperature 0.8、top-k 20、top-p 0.5）、repetition penalty 1.1、
+              no-repeat 3-gram、length penalty 0.5、最多 300 token；用 --seed 固定亂數
 """
 
 import argparse
@@ -30,6 +36,13 @@ from prompt import build_gen_prompt
 
 MAX_NEW_TOKENS = 200
 
+DECODE = {
+    "greedy": dict(do_sample=False, num_beams=1, max_new_tokens=MAX_NEW_TOKENS),
+    "official": dict(num_beams=20, do_sample=True, temperature=0.8, top_k=20, top_p=0.5,
+                     repetition_penalty=1.1, no_repeat_ngram_size=3, length_penalty=0.5,
+                     min_length=1, max_new_tokens=300),
+}
+
 
 def parse_args():
     ap = argparse.ArgumentParser()
@@ -41,13 +54,15 @@ def parse_args():
     ap.add_argument("--entities", default=None, help="--mode file 用：{utt_id: [entity, ...]} 的 JSON")
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 句（快速測試）")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--decode", default="greedy", choices=list(DECODE),
+                    help="greedy（預設）或 official（官方 code 的 beam 20 + sampling）")
     ap.add_argument("--amp", default="auto", choices=AMP_CHOICES,
                     help="encoder 精度；auto = 3090/A5000 用 bf16、2080 Ti 用 fp16")
     return ap.parse_args()
 
 
 @torch.no_grad()
-def transcribe_one(model, input_features, entity_list, dev):
+def transcribe_one(model, input_features, entity_list, dev, decode="greedy"):
     """單句生成，回傳文字（小寫、單行）。"""
     feats = input_features.unsqueeze(0).to(dev)         # (1, 80, 3000)
     h, ctc_logits = model.encode_audio(feats)
@@ -58,9 +73,7 @@ def transcribe_one(model, input_features, entity_list, dev):
     out_ids = model.lm.generate(
         inputs_embeds=prompt["inputs_embeds"],
         attention_mask=prompt["attention_mask"],
-        max_new_tokens=MAX_NEW_TOKENS,
-        do_sample=False,              # greedy，可重現
-        num_beams=1,
+        **DECODE[decode],
         eos_token_id=model.tokenizer.eos_token_id,
         pad_token_id=model.tokenizer.eos_token_id,
     )
@@ -72,6 +85,7 @@ def transcribe_one(model, input_features, entity_list, dev):
 def main():
     args = parse_args()
     dev = torch.device("cuda")
+    torch.manual_seed(args.seed)                  # --decode official 有 sampling，固定亂數才可重現
 
     fe = WhisperFeatureExtractor.from_pretrained(WHISPER_ID)
     # Bug B 修正：評估不能過濾 >30 秒的句子，測試集少一句 WER 就和論文不可比
@@ -105,7 +119,7 @@ def main():
                 el = ent_file.get(s["utt_id"], [])
             n_ent += len(el)
 
-            hyp = transcribe_one(model, s["input_features"], el, dev)
+            hyp = transcribe_one(model, s["input_features"], el, dev, args.decode)
             f.write(f"{s['utt_id']}\t{hyp}\n")
 
             if i < 3:
@@ -113,7 +127,7 @@ def main():
                 print(f"  HYP: {hyp[:80]}")
                 print(f"  entity {len(el)} 個: {el[:10]}")
 
-    print(f"\n寫入 {out_path}（{n} 句，平均每句 {n_ent / max(n, 1):.1f} 個 entity）")
+    print(f"\n寫入 {out_path}（{n} 句，解碼 {args.decode}，平均每句 {n_ent / max(n, 1):.1f} 個 entity）")
     print(f"峰值 GPU 記憶體 {torch.cuda.max_memory_allocated() / 2**30:.2f} GB")
 
 
