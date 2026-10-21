@@ -47,6 +47,8 @@ def parse_args():
     ap.add_argument("--utts-per-epoch", type=int, default=None,
                     help="每個 epoch 隨機抽幾句（官方 960 h 用 70000）；預設全部")
     ap.add_argument("--amp", default="bf16", choices=AMP_CHOICES, help="凍結 encoder 的精度")
+    ap.add_argument("--early-stop-patience", type=int, default=10,
+                    help="early stopping：epoch 結束時的 val loss 連續幾個 epoch 沒進步就停（官方預設 10，Stage 1 / 2 都不會觸發；續跑時計數歸零）")
     ap.add_argument("--num-workers", type=int, default=8)
     ap.add_argument("--resume", default=None, help="從 epoch{N}.pt 續跑")
     return ap.parse_args()
@@ -139,6 +141,7 @@ def main():
           f" → {n_updates:,} 次更新", flush=True)
 
     # --- 訓練迴圈 ---
+    best_val_loss, bad_epochs = float("inf"), 0     # early stopping（官方：看 valid/loss）
     best_recall, t0 = -1.0, time.time()        # step 不再這裡歸零
     opt.zero_grad()
     for epoch in range(start_epoch, args.epochs):
@@ -207,6 +210,16 @@ def main():
             best_recall = v_r20
             save_ckpt(out_dir / "best.pt", model, opt, sched, step, epoch, args)
         save_ckpt(out_dir / f"epoch{epoch}.pt", model, opt, sched, step, epoch + 1, args)
+
+        # --- early stopping：和官方相同，看 epoch 結束時的 val loss、min_delta = 0 ---
+        if v_loss < best_val_loss:
+            best_val_loss, bad_epochs = v_loss, 0
+        else:
+            bad_epochs += 1
+            print(f"[early stop] val_loss 已 {bad_epochs}/{args.early_stop_patience} 個 epoch 沒進步", flush=True)
+            if bad_epochs >= args.early_stop_patience:
+                print(f"\n[early stop] 停在 epoch {epoch}（最佳 val_loss {best_val_loss:.4f}）", flush=True)
+                break
 
     writer.close()
     print(f"\n完成。最佳 val Recall#20 = {best_recall:.4f}，摘要檔: {summary_path}")

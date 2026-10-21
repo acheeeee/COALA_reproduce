@@ -37,6 +37,8 @@ def parse_args():
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--amp", default="bf16", choices=AMP_CHOICES,
                     help="凍結 encoder 的精度；2080 Ti 沒有原生 bf16，用 auto 或 fp16")
+    ap.add_argument("--early-stop-patience", type=int, default=10,
+                    help="early stopping：epoch 結束時的 val loss 連續幾個 epoch 沒進步就停（官方預設 10，Stage 1 / 2 都不會觸發；續跑時計數歸零）")
     ap.add_argument("--num-workers", type=int, default=8)
     ap.add_argument("--resume", default=None)
     return ap.parse_args()
@@ -150,6 +152,7 @@ def main():
       # --- 訓練迴圈 ---
       t_start = time.time()
       best_val = float("inf")
+      es_best, bad_epochs = float("inf"), 0      # early stopping（官方：看 epoch 結束的 valid/loss）
 
       for epoch in range(start_epoch, args.epochs):
           ep_tot = ep_ctc = ep_ce = 0.0
@@ -227,6 +230,17 @@ def main():
 
           save_ckpt(out_dir / f"epoch{epoch}.pt", model, opt, sched,
                     step, epoch + 1, args)
+
+          # --- early stopping：和官方相同，看 epoch 結束時的 val loss、min_delta = 0 ---
+          if v_tot < es_best:
+              es_best, bad_epochs = v_tot, 0
+          else:
+              bad_epochs += 1
+              print(f"[early stop] val_total 已 {bad_epochs}/{args.early_stop_patience} 個 epoch 沒進步",
+                    flush=True)
+              if bad_epochs >= args.early_stop_patience:
+                  print(f"\n[early stop] 停在 epoch {epoch}（最佳 val_total {es_best:.4f}）", flush=True)
+                  break
 
       writer.close()
       print(f"\n完成。摘要檔: {summary_path}")
