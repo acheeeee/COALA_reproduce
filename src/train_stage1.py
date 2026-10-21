@@ -17,6 +17,7 @@ from transformers import WhisperFeatureExtractor, get_linear_schedule_with_warmu
 
 from biasing import load_rare_pool, make_stage1_list
 from dataset import LibriSpeechDataset, collate_fn
+from eval_utils import AMP_CHOICES, resolve_amp
 from model import COALAModel, WHISPER_ID
 
 
@@ -34,6 +35,8 @@ def parse_args():
     ap.add_argument("--log-every", type=int, default=50)
     ap.add_argument("--val-every", type=int, default=2000)
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--amp", default="bf16", choices=AMP_CHOICES,
+                    help="凍結 encoder 的精度；2080 Ti 沒有原生 bf16，用 auto 或 fp16")
     ap.add_argument("--num-workers", type=int, default=8)
     ap.add_argument("--resume", default=None)
     return ap.parse_args()
@@ -115,7 +118,9 @@ def main():
       rng = random.Random(args.seed)
 
       # --- 模型 ---
-      model = COALAModel(stack=args.stack).to(dev)
+      model = COALAModel(stack=args.stack)
+      model.amp_dtype = resolve_amp(args.amp)
+      model.to(dev)
       model.train()
       model.encoder.eval()
 
@@ -126,7 +131,7 @@ def main():
       sched = get_linear_schedule_with_warmup(
           opt, int(total_steps * args.warmup_ratio), total_steps)
 
-      print(f"stack = {args.stack}  (每秒 {1500 / args.stack / 30:.1f} 個位置)")
+      print(f"stack = {args.stack}  (每秒 {1500 / args.stack / 30:.1f} 個位置)，encoder 精度 {model.amp_dtype}")
       print(f"可訓練參數 {sum(p.numel() for p in params):,}")
       print(f"總步數 {total_steps:,} ({len(train_dl)} 步/epoch × {args.epochs} epochs)",
             flush=True)

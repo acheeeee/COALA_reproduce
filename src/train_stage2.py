@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from transformers import WhisperFeatureExtractor, get_linear_schedule_with_warmup
@@ -19,6 +19,7 @@ from transformers import WhisperFeatureExtractor, get_linear_schedule_with_warmu
 from biasing import load_rare_pool, make_stage2_candidates
 from dataset import LibriSpeechDataset, collate_fn
 from losses import bias_loss, disc_loss, dpd_loss, mpd_loss
+from eval_utils import AMP_CHOICES, resolve_amp
 from model import COALAModel, WHISPER_ID
 from train_stage1 import save_ckpt
 
@@ -43,6 +44,9 @@ def parse_args():
     ap.add_argument("--val-utts", type=int, default=200)
     ap.add_argument("--max-steps", type=int, default=None, help="只跑 N 句就停（量速度用）")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--utts-per-epoch", type=int, default=None,
+                    help="每個 epoch 隨機抽幾句（官方 960 h 用 70000）；預設全部")
+    ap.add_argument("--amp", default="bf16", choices=AMP_CHOICES, help="凍結 encoder 的精度")
     ap.add_argument("--num-workers", type=int, default=8)
     ap.add_argument("--resume", default=None, help="從 epoch{N}.pt 續跑")
     return ap.parse_args()
@@ -98,8 +102,11 @@ def main():
     fe = WhisperFeatureExtractor.from_pretrained(WHISPER_ID)
     train_ds = LibriSpeechDataset(args.train, fe)
     val_ds = LibriSpeechDataset(args.val, fe)
-    train_dl = DataLoader(train_ds, batch_size=1, shuffle=True, collate_fn=collate_fn,
-                          num_workers=args.num_workers, pin_memory=True)
+    # --utts-per-epoch：每個 epoch 重新隨機抽一批（不重複），對齊官方 70,000 句/epoch × 7
+    sampler = (RandomSampler(train_ds, replacement=False, num_samples=args.utts_per_epoch)
+               if args.utts_per_epoch else None)
+    train_dl = DataLoader(train_ds, batch_size=1, shuffle=sampler is None, sampler=sampler,
+                          collate_fn=collate_fn, num_workers=args.num_workers, pin_memory=True)
     rare_pool = load_rare_pool()
     rng = random.Random(args.seed)
 
@@ -109,6 +116,7 @@ def main():
     _, unexpected = model.load_state_dict(ck["model"], strict=False)
     assert not unexpected, f"checkpoint 有不認識的鍵: {unexpected}"
     model.setup_stage2()
+    model.amp_dtype = resolve_amp(args.amp)
     model.to(dev)
     model.train()
     model.encoder.eval()
