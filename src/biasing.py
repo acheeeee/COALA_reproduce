@@ -14,6 +14,7 @@ import collections
 import json
 import random
 from pathlib import Path
+import torch
 
 from rare_words import (
     RARE_WORDS_FILE,
@@ -23,6 +24,7 @@ from rare_words import (
 )
 
 UNBIASED = "<unbiased>"
+M_STAGE2 = 120        
 
 OFFICIAL_REF_DIR = Path("/mnt/disk2/M11515125/fbai-speech/is21_deep_bias/ref")
 
@@ -101,6 +103,17 @@ def load_official_ref(split, n):
             }
     return out
 
+def make_stage2_candidates(positives, rare_pool, rng, m=M_STAGE2):
+    """Stage 2 一句話的候選：全部正樣本 + 干擾詞補到 m 個 → 加 <unbiased> → 長度 m+1。
+
+    回傳 (full, pos)：full 是 list[str]，pos 是 (m+1,) bool tensor（True = E⁺）
+    """
+    biasing_list = make_biasing_list(positives, rare_pool, m - len(positives), rng)
+    full = add_unbiased(biasing_list)
+    pos_idx, neg_idx = split_pos_neg(full, positives)
+    pos = torch.zeros(len(full), dtype=torch.bool) 
+    pos[pos_idx]=1
+    return full, pos
 
 def main():
     rare_pool = load_rare_pool()

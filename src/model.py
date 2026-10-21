@@ -10,6 +10,10 @@ from lora_setup import LM_ID, make_lora_config
 from modules import AudioAdapter, CTCHead, compute_ctc_loss, ctc_compress
 from prompt import build_stage1_sample, pad_batch
 
+import torch.nn.functional as F
+from projector import DiscriminativeProjector
+from prompt import IGNORE_INDEX, build_stage2_sample
+
 WHISPER_ID = "openai/whisper-large-v2"
 
 CTC_WEIGHT = 0.3        # 論文 3.4 Stage 1
@@ -90,7 +94,76 @@ class COALAModel(nn.Module):
         #         return dict(loss=total, ctc_loss=ctc_loss, ce_loss=ce_loss)
         total = CTC_WEIGHT * ctc_loss + CE_WEIGHT * ce_loss
         return dict(loss=total, ctc_loss=ctc_loss, ce_loss=ce_loss)
-        
+
+    def setup_stage2(self):
+        """Stage 2 準備：新建 projector，凍結 Stage 1 的一切，只訓練 projector + LoRA scoring。
+
+        呼叫順序：建模型 → 載入 Stage 1 checkpoint → setup_stage2() → .to(dev)
+        （在 .to(dev) 之前建 projector，它才會一起搬上 GPU）
+        """
+        self.projector = DiscriminativeProjector()
+
+        for m in ( self.adapter, self.ctc_head):          # 兩個要凍結的模組
+            for p in m.parameters():          # 逐個取出參數
+                p.requires_grad = False          # 標成不可訓練
+
+        self.lm.set_adapter("scoring")
+
+    def forward_stage2(self, input_features, candidates, need_logp=False):
+        """
+        一句話 + K 個候選 → K 個分數 s（+ 可選的 log P(e_i | X)，給 bias_loss 用）
+
+        input_features: (1, 80, 3000)
+        candidates:     list[str]，長度 K，index 0 = <unbiased>
+        回傳 dict:      s (K,)、logp (K,) 或 None
+        """
+        # ── 0. 音訊 → audio tokens（encoder / adapter / CTC 都凍結，這裡用 no_grad 沒問題）──
+        with torch.no_grad():
+            h, ctc_logits = self.encode_audio(input_features)
+            audio_tok = ctc_compress(h[0], ctc_logits[0])
+
+        embed_layer = self.lm.get_input_embeddings()
+        s2 = build_stage2_sample(audio_tok, candidates, self.tokenizer, embed_layer)
+        prefix, suffix = s2["prefix_embeds"], s2["suffix_embeds"]
+        suffix_mask, entity_ids = s2["suffix_mask"], s2["entity_ids"]
+        K, P = suffix.shape[0], prefix.shape[0]
+
+        out_p = self.lm(inputs_embeds=prefix.unsqueeze(0), use_cache=True)
+        cache = out_p.past_key_values
+
+
+        cache.batch_repeat_interleave(K)
+
+        prefix_mask = torch.ones(K, P, dtype=suffix_mask.dtype, device=suffix_mask.device)
+        attention_mask = torch.cat([prefix_mask, suffix_mask], dim=1)
+
+        out_s = self.lm(
+        inputs_embeds=suffix,
+        attention_mask=attention_mask,
+        past_key_values=cache,
+        output_hidden_states=True,
+        )
+
+        h_ent = out_s.hidden_states[-1] 
+        s = self.projector(h_ent, suffix_mask.float())
+
+        logp = None
+        logp = None
+        if need_logp:
+            # 預測「第 1 個 token」:用前綴最後一個位置的輸出,複製成 K 份
+            logits_first = out_p.logits[:, -1:].expand(K, -1, -1)        # (K, 1, V)
+            # 預測「第 2 個以後」:用尾巴位置 0 ~ S-2 的輸出
+            logits_rest = out_s.logits[:, :-1]                           # (K, S-1, V)
+            # 接起來,剛好和 entity_ids (K, S) 逐格對齊
+            logits = torch.cat([logits_first, logits_rest], dim=1)       # (K, S, V)
+            # 每個位置的 -log 機率,補位(-100)的位置是 0
+            ce = F.cross_entropy(logits.transpose(1, 2), entity_ids,
+                                 ignore_index=IGNORE_INDEX, reduction="none")   # (K, S)
+            # 每個候選:加總再變號
+            logp = -ce.sum(dim=1)                                        # (K,)
+
+        return {"s": s, "logp": logp}
+        return {"s": s, "logp": logp}
 
 
 def main():
