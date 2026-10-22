@@ -91,7 +91,7 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 
 | Methods | w/o clean | w/o other | Oracle clean | Oracle other | N=500 clean | N=500 other | N=1000 clean | N=1000 other | N=5000 clean | N=5000 other |
 |---|---|---|---|---|---|---|---|---|---|---|
-| COALA | 49.35 (11.59 / 6.94) | — | — | — | — | — | — | — | — | — |
+| COALA | 49.35 (11.59 / 6.94) | — | 6.09 (4.76 / 4.59) | — | — | — | — | — | — | — |
 | + BTI (DPD-Loss) | （同上） | （同上） | （同上） | （同上） | — | — | — | — | — | — |
 
 > 100 h 的 Table 2：**fbai 定義、greedy 解碼**（`score_wer.py`），完整紀錄在伺服器的 `exp/wer_all.tsv`。
@@ -100,6 +100,7 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 > | 格子 | 官方定義 | 日期 |
 > |---|---|---|
 > | w/o clean | 48.02 (11.56 / 7.30) | 2026-10-22 |
+> | Oracle clean | 5.79 (4.63 / 4.50) | 2026-10-22 |
 
 ### ③ 960 h
 
