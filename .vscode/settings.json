@@ -3,7 +3,7 @@
   "latex-workshop.latex.tools": [
     {
       "name": "tectonic",
-      "command": "tectonic",
+      "command": "/opt/homebrew/bin/tectonic",
       "args": ["--synctex", "--keep-logs", "--outdir", "%OUTDIR%", "%DOC%.tex"],
       "env": {}
     }

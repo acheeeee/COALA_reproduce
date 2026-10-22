@@ -23,12 +23,13 @@
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{multirow}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{listings}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\rowline}{\arrayrulecolor{gray!45}\specialrule{0.3pt}{0pt}{0pt}\arrayrulecolor{black}}
 \newcommand{\todo}{---}                 % 尚未跑
 \newcommand{\running}{跑中}
 
@@ -53,20 +54,30 @@
 \section*{0. 三組設定對照}
 
 {\small
-\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.5cm} L L L}
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.3cm} L L L}
 \toprule
 \textbf{項目} & \textbf{① 論文} & \textbf{② 100\,h} & \textbf{③ 960\,h} \\
 \midrule
 Stage 1 訓練資料 & LibriSpeech train-960h & train-clean-100（28,539 句） & LibriSpeech train-960h \\
+\rowline
 Stage 1 & 10 epochs、batch 4 & 同左 & 同左 \\
+\rowline
 Stage 2 訓練資料 & train-960 & train-clean-100 & train-960 \\
+\rowline
 Stage 2 每 epoch & \textbf{論文未寫} & 28,539 句（全部） & 70,000 句（\texttt{per-epoch 70000}） \\
+\rowline
 Stage 2 & 7 epochs、batch 1、M=120 & 同左，grad accum 4 & 同左 \\
+\rowline
 adapter / CTC & 未寫 & frame stacking $\times$2 + 字元 CTC（29） & 同左 \\
+\rowline
 LoRA & 未寫（官方 code：r=8，7 種 Linear） & r=16，\texttt{q\_proj} / \texttt{v\_proj} & 同左 \\
+\rowline
 N=5000 清單 & 未公開 & 自己抽，\texttt{Random(f"0-\{utt\_id\}")} & 同左 \\
+\rowline
 Stage 1 CTC 權重 & 論文 0.3；\textbf{官方用 0.5} & 0.3（照論文） & 0.3 \\
+\rowline
 early stopping & 論文未寫；官方 \texttt{patience 10} & \texttt{patience 10}（同官方） & 同左 \\
+\rowline
 GPU & RTX 3090（ASR + Scoring + 評估）
     & RTX 3090（ASR + Scoring：DPD \& disc）；\newline RTX A5000（Scoring：MPD \& Bias-Loss）；\newline RTX 2080 Ti（評估）
     & RTX 2080 Ti（ASR）；\newline RTX 3090 / RTX A5000（Scoring + 評估） \\
@@ -95,6 +106,7 @@ train-other-500 & 148,688 & 496.9 h \\
 }
 
 % ---------------------------------------------------------------------
+\clearpage
 \section*{Table 1：Biasing scoring（N = 5000）}
 
 Recall@95 越小越好；Recall\#20、Recall\#50 越大越好（\%）。
@@ -134,11 +146,11 @@ DPD-Loss   & \textbf{9.0} & \textbf{13.0} & \textbf{99.09} & \textbf{96.59} & \t
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
  & clean & other & clean & other & clean & other \\
 \midrule
-COALA -- Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
-COALA -- MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
-COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
+MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \midrule
-\textit{（額外）COALA -- disc 單獨} & \todo & \todo & \todo & \todo & \todo & \todo \\
+\textit{（額外）disc 單獨} & \todo & \todo & \todo & \todo & \todo & \todo \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -152,23 +164,15 @@ COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
  & clean & other & clean & other & clean & other \\
 \midrule
-COALA -- Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
-COALA -- MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
-COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
+MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \bottomrule
 \end{tabular}
 \end{center}
 
 % ---------------------------------------------------------------------
 \section*{Table 2：ASR B-WER（WER / U-WER）}
-
-只重現論文 Table 2 的 COALA 兩列（其他 baseline 的數字是論文從原論文引用的，不重現）。
-\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
-  \item \textbf{COALA}：整份 biasing list 直接放進 prompt（N=5000 在論文中 OOM）
-  \item \textbf{+ BTI (DPD-Loss)}：DPD 模型打分 $\rightarrow$ top-10 + \texttt{<unbiased>} 門檻 $\rightarrow$ 放進 prompt
-  \item w/o Biasing 和 Oracle 只跟 Stage 1 模型有關、不經過 Stage 2，所以「+ BTI」只列 N=500 / 1000 / 5000
-\end{itemize}
-每格是 \textbf{B-WER (WER / U-WER)}。同一列直接比 ① 論文、② 100 h、③ 960 h。
 
 \subsection*{test-clean}
 
@@ -192,9 +196,7 @@ COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \end{tabular}
 \end{center}
 
-100 h 的 Table 2：\textbf{fbai 定義、greedy 解碼}（\texttt{score\_wer.py}），\\
-完整紀錄在伺服器的 \texttt{exp/wer\_all.tsv}。
-同一格用官方 code 的定義（Whisper 正規化、官方 rare word 判定）：
+\subsection*{100 h 官方定義對照（test-clean）}
 
 \begin{center}
 {\small
@@ -231,8 +233,6 @@ Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
 \end{tabular}
 \end{center}
 
-N=5000 的「COALA」那格：論文寫 OOM。我們會實際跑一次（\texttt{-{}-mode file} 放整份 5000 詞的清單）。不管有沒有 OOM，結果都記下來。
-
 % ---------------------------------------------------------------------
 \section*{圖}
 
@@ -247,42 +247,5 @@ Fig.~4 & 正負樣本分數分布（boxplot），Bias / MPD / DPD $\times$ 1 / 2
 \bottomrule
 \end{tabularx}
 }
-
-% ---------------------------------------------------------------------
-\section*{產生每一格的指令}
-
-以 DPD、test-clean、100 h 為例。\\
-換 split 就把 \texttt{test-clean} 改成 \texttt{test-other}；換模型就改 \texttt{exp/stage2\_dpd}。
-
-\textbf{Table 1}
-\begin{lstlisting}
-score_stage2.py --ckpt exp/stage2_dpd/best.pt --split test-clean --n 5000 --out exp/score/dpd.test-clean.N5000.jsonl
-  -> recall.py exp/score/dpd.test-clean.N5000.jsonl
-\end{lstlisting}
-
-\textbf{Table 2 w/o}
-\begin{lstlisting}
-evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --manifest data/manifest/test-clean.tsv --mode nobias --out ...
-  -> score.py
-\end{lstlisting}
-
-\textbf{Table 2 Oracle}：同上，\texttt{-{}-mode oracle}
-
-\textbf{Table 2 COALA、N}
-\begin{lstlisting}
-score_stage2.py ... --n N --dump-lists exp/lists/test-clean.N{N}.json
-  -> evaluate.py --mode file --entities exp/lists/test-clean.N{N}.json
-  -> score.py
-\end{lstlisting}
-
-\textbf{Table 2 + BTI、N}
-\begin{lstlisting}
-score_stage2.py ... --n N
-  -> bti.py ... --out exp/bti/dpd.test-clean.N{N}.json
-  -> evaluate.py --mode file --entities exp/bti/...
-  -> score.py
-\end{lstlisting}
-
-\texttt{score.py} 用官方 ref 算分：\texttt{-{}-refs .../ref/test-clean.biasing\_1000.tsv}。B-WER 只看 ref 的第 3 欄（句子裡的 rare word），和 N 無關，所以 N=5000 也用這個 ref。
 
 \end{document}
