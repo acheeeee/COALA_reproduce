@@ -1,14 +1,22 @@
 % =====================================================================
 %  RESULTS — 論文 vs 100 h vs 960 h
-%  Overleaf 編譯方式：左上 Menu → Compiler 選「XeLaTeX」（中文需要）
+%  Overleaf：左上 Menu → Compiler 選「XeLaTeX」（中文需要）
+%  本機 VS Code：存檔就會自動用 tectonic 編譯，PDF 在 build/RESULTS.pdf
 % =====================================================================
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[margin=2cm]{geometry}
 \usepackage{xeCJK}
-\setCJKmainfont{Noto Serif CJK TC}      % Overleaf 內建字型；找不到時改成 Noto Sans CJK TC
-\setCJKsansfont{Noto Sans CJK TC}
-\setCJKmonofont{Noto Sans Mono CJK TC}
+% 中文字型：Overleaf 有 Noto CJK；本機 Mac（VS Code + tectonic）沒有，改用系統內建的宋體 / 黑體
+\IfFontExistsTF{Noto Serif CJK TC}{%
+  \setCJKmainfont{Noto Serif CJK TC}%
+  \setCJKsansfont{Noto Sans CJK TC}%
+  \setCJKmonofont{Noto Sans CJK TC}%
+}{%
+  \setCJKmainfont{Songti TC}%
+  \setCJKsansfont{Heiti TC}%
+  \setCJKmonofont{Heiti TC}%
+}
 \xeCJKsetcharclass{"2460}{"24FF}{1}      % ①②③ 用中文字型
 
 \usepackage{booktabs}
@@ -184,7 +192,8 @@ COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \end{tabular}
 \end{center}
 
-100 h 的 Table 2：\textbf{fbai 定義、greedy 解碼}（\texttt{score\_wer.py}），完整紀錄在伺服器的 \texttt{exp/wer\_all.tsv}。
+100 h 的 Table 2：\textbf{fbai 定義、greedy 解碼}（\texttt{score\_wer.py}），\\
+完整紀錄在伺服器的 \texttt{exp/wer\_all.tsv}。
 同一格用官方 code 的定義（Whisper 正規化、官方 rare word 判定）：
 
 \begin{center}
@@ -242,7 +251,8 @@ Fig.~4 & 正負樣本分數分布（boxplot），Bias / MPD / DPD $\times$ 1 / 2
 % ---------------------------------------------------------------------
 \section*{產生每一格的指令}
 
-以 DPD、test-clean、100 h 為例。換 split 就把 \texttt{test-clean} 改成 \texttt{test-other}；換模型就改 \texttt{exp/stage2\_dpd}。
+以 DPD、test-clean、100 h 為例。\\
+換 split 就把 \texttt{test-clean} 改成 \texttt{test-other}；換模型就改 \texttt{exp/stage2\_dpd}。
 
 \textbf{Table 1}
 \begin{lstlisting}
