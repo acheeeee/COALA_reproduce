@@ -13,9 +13,9 @@
 
 | 項目 | ① 論文 | ② 100 h | ③ 960 h |
 |---|---|---|---|
-| Stage 1 訓練資料 | LibriSpeech 960 h | train-clean-100（28,539 句） | train-960（281,241 句） |
+| Stage 1 訓練資料 | LibriSpeech 960 h = train-clean-100 + train-clean-360 + train-other-500 | train-clean-100（28,539 句，100.59 h） | **和論文同一份資料**：三個 split 合併成 `train-960.tsv`（281,241 句，961.06 h）；訓練時濾掉 >30 秒的 38 句 |
 | Stage 1 | 10 epochs、batch 4 | 同左 | 同左 |
-| Stage 2 訓練資料 | 960 h | train-clean-100 | train-960 |
+| Stage 2 訓練資料 | LibriSpeech 960 h（同上） | train-clean-100 | `train-960.tsv`（同上） |
 | Stage 2 每 epoch | **論文未寫**；官方 code `stage_2.sh` 第 29 行 `--train-batch-per-epoch 70000`（見下方註） | 28,539 句（全部） | 70,000 句（`--utts-per-epoch 70000`） |
 | Stage 2 | 7 epochs、batch 1、M=120 | 同左，grad accum 4 | 同左 |
 | adapter / CTC | 未寫 | frame stacking ×2 + 字元 CTC（29） | 同左 |
