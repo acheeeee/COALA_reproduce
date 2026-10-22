@@ -1,0 +1,278 @@
+% =====================================================================
+%  RESULTS — 論文 vs 100 h vs 960 h
+%  Overleaf 編譯方式：左上 Menu → Compiler 選「XeLaTeX」（中文需要）
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2cm]{geometry}
+\usepackage{xeCJK}
+\setCJKmainfont{Noto Serif CJK TC}      % Overleaf 內建字型；找不到時改成 Noto Sans CJK TC
+\setCJKsansfont{Noto Sans CJK TC}
+\setCJKmonofont{Noto Sans Mono CJK TC}
+\xeCJKsetcharclass{"2460}{"24FF}{1}      % ①②③ 用中文字型
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\todo}{---}                 % 尚未跑
+\newcommand{\running}{跑中}
+
+\lstset{basicstyle=\ttfamily\small, breaklines=true, columns=fullflexible,
+        frame=single, rulecolor=\color{gray!40}, backgroundcolor=\color{gray!5}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\renewcommand{\arraystretch}{1.25}
+
+\title{RESULTS — 論文 vs 100\,h vs 960\,h}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-3em}
+
+\textbf{① 論文原始數據}、\textbf{② 我們的 100\,h}、\textbf{③ 我們的 960\,h}。
+
+% ---------------------------------------------------------------------
+\section*{0. 三組設定對照}
+
+{\small
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.5cm} L L L}
+\toprule
+\textbf{項目} & \textbf{① 論文} & \textbf{② 100\,h} & \textbf{③ 960\,h} \\
+\midrule
+Stage 1 訓練資料 & LibriSpeech train-960h & train-clean-100（28,539 句） & LibriSpeech train-960h \\
+Stage 1 & 10 epochs、batch 4 & 同左 & 同左 \\
+Stage 2 訓練資料 & train-960 & train-clean-100 & train-960 \\
+Stage 2 每 epoch & \textbf{論文未寫} & 28,539 句（全部） & 70,000 句（\texttt{per-epoch 70000}） \\
+Stage 2 & 7 epochs、batch 1、M=120 & 同左，grad accum 4 & 同左 \\
+adapter / CTC & 未寫 & frame stacking $\times$2 + 字元 CTC（29） & 同左 \\
+LoRA & 未寫（官方 code：r=8，7 種 Linear） & r=16，\texttt{q\_proj} / \texttt{v\_proj} & 同左 \\
+N=5000 清單 & 未公開 & 自己抽，\texttt{Random(f"0-\{utt\_id\}")} & 同左 \\
+Stage 1 CTC 權重 & 論文 0.3；\textbf{官方用 0.5} & 0.3（照論文） & 0.3 \\
+early stopping & 論文未寫；官方 \texttt{patience 10} & \texttt{patience 10}（同官方） & 同左 \\
+GPU & RTX 3090（ASR + Scoring + 評估）
+    & RTX 3090（ASR + Scoring：DPD \& disc）；\newline RTX A5000（Scoring：MPD \& Bias-Loss）；\newline RTX 2080 Ti（評估）
+    & RTX 2080 Ti（ASR）；\newline RTX 3090 / RTX A5000（Scoring + 評估） \\
+\bottomrule
+\end{tabularx}
+}
+
+\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
+  \item 70,000：論文只寫 7 epochs、batch size 1。
+  \item 70,000 來自官方 code（\texttt{github.com/Guo0911/COALA}，commit \texttt{7b2e008}）。
+\end{itemize}
+
+{\small
+\begin{tabular}{lrr}
+\toprule
+split & 句數 & 時數 \\
+\midrule
+train-clean-100 & 28,539 & 100.6 h \\
+train-clean-360 & 104,014 & 363.6 h \\
+train-other-500 & 148,688 & 496.9 h \\
+\midrule
+合計 & 281,241 & 961.06 h \\
+\bottomrule
+\end{tabular}
+\quad 「960 h」是取整數的說法
+}
+
+% ---------------------------------------------------------------------
+\section*{Table 1：Biasing scoring（N = 5000）}
+
+Recall@95 越小越好；Recall\#20、Recall\#50 越大越好（\%）。
+
+\subsection*{① 論文}
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Methods}} & \multicolumn{2}{c}{\textbf{Recall@95} ($\downarrow$)} & \multicolumn{2}{c}{\textbf{Recall\#20} (\%) ($\uparrow$)} & \multicolumn{2}{c}{\textbf{Recall\#50} (\%) ($\uparrow$)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & clean & other & clean & other & clean & other \\
+\midrule
+CTC-Filter & 94.3 & 1459.0 & 93.26 & 83.83 & 94.45 & 85.49 \\
+K-Prompt   & 593.3 & 1532.3 & 86.30 & 73.88 & 88.92 & 79.05 \\
+\midrule
+Bias-Loss  & 10.0 & 19.0 & 98.72 & 95.10 & 99.29 & 97.27 \\
+MPD-Loss   & \textbf{9.0} & 16.9 & 98.76 & 95.65 & 99.43 & 97.55 \\
+DPD-Loss   & \textbf{9.0} & \textbf{13.0} & \textbf{99.09} & \textbf{96.59} & \textbf{99.60} & \textbf{98.17} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{補充}：CTC-Filter、K-Prompt 是論文拿來比較的 baseline（別人的方法），我們不重現，只保留論文的數字。
+\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
+  \item \textbf{CTC-Filter}（Yang et al., SLT 2024）：CTC 解碼的逐字稿 + 拼字相似度排名
+  \item \textbf{K-Prompt}（Zhang et al., BigData 2023）：第 1 次轉寫 + 模糊比對
+\end{itemize}
+兩者都先轉成文字再比對，第一步轉錯就會連帶出錯（error propagation），所以在 test-other 上特別差。
+
+\subsection*{② 100 h}
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Methods}} & \multicolumn{2}{c}{\textbf{Recall@95} ($\downarrow$)} & \multicolumn{2}{c}{\textbf{Recall\#20} (\%) ($\uparrow$)} & \multicolumn{2}{c}{\textbf{Recall\#50} (\%) ($\uparrow$)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & clean & other & clean & other & clean & other \\
+\midrule
+COALA -- Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
+COALA -- MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+\midrule
+\textit{（額外）COALA -- disc 單獨} & \todo & \todo & \todo & \todo & \todo & \todo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{③ 960 h}
+
+\begin{center}
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Methods}} & \multicolumn{2}{c}{\textbf{Recall@95} ($\downarrow$)} & \multicolumn{2}{c}{\textbf{Recall\#20} (\%) ($\uparrow$)} & \multicolumn{2}{c}{\textbf{Recall\#50} (\%) ($\uparrow$)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & clean & other & clean & other & clean & other \\
+\midrule
+COALA -- Bias-Loss & \todo & \todo & \todo & \todo & \todo & \todo \\
+COALA -- MPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+COALA -- DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------
+\section*{Table 2：ASR B-WER（WER / U-WER）}
+
+只重現論文 Table 2 的 COALA 兩列（其他 baseline 的數字是論文從原論文引用的，不重現）。
+\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
+  \item \textbf{COALA}：整份 biasing list 直接放進 prompt（N=5000 在論文中 OOM）
+  \item \textbf{+ BTI (DPD-Loss)}：DPD 模型打分 $\rightarrow$ top-10 + \texttt{<unbiased>} 門檻 $\rightarrow$ 放進 prompt
+  \item w/o Biasing 和 Oracle 只跟 Stage 1 模型有關、不經過 Stage 2，所以「+ BTI」只列 N=500 / 1000 / 5000
+\end{itemize}
+每格是 \textbf{B-WER (WER / U-WER)}。同一列直接比 ① 論文、② 100 h、③ 960 h。
+
+\subsection*{test-clean}
+
+\begin{center}
+\begin{tabular}{llccc}
+\toprule
+\textbf{方法} & \textbf{條件} & \textbf{① 論文} & \textbf{② 100 h} & \textbf{③ 960 h} \\
+\midrule
+\multirow{5}{*}{COALA}
+ & w/o Biasing & 23.39 (4.54 / 2.34) & 49.35 (11.59 / 6.94) & \todo \\
+ & Oracle      & \textbf{1.77} (1.90 / 1.92) & 6.09 (4.76 / 4.59) & \todo \\
+ & N=500       & 20.38 (4.36 / 2.49) & \todo & \todo \\
+ & N=1000      & 21.98 (4.56 / 2.53) & \todo & \todo \\
+ & N=5000      & OOM & \todo & \todo \\
+\midrule
+\multirow{3}{*}{+ BTI (DPD-Loss)}
+ & N=500       & \textbf{3.25} (2.28 / 2.17) & \todo & \todo \\
+ & N=1000      & \textbf{3.86} (2.50 / 2.34) & \todo & \todo \\
+ & N=5000      & \textbf{6.96} (3.39 / 2.97) & \todo & \todo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+100 h 的 Table 2：\textbf{fbai 定義、greedy 解碼}（\texttt{score\_wer.py}），完整紀錄在伺服器的 \texttt{exp/wer\_all.tsv}。
+同一格用官方 code 的定義（Whisper 正規化、官方 rare word 判定）：
+
+\begin{center}
+{\small
+\begin{tabular}{lcc}
+\toprule
+格子 & 官方定義 & 日期 \\
+\midrule
+w/o clean    & 48.02 (11.56 / 7.30) & 2026-10-22 \\
+Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+\subsection*{test-other}
+
+\begin{center}
+\begin{tabular}{llccc}
+\toprule
+\textbf{方法} & \textbf{條件} & \textbf{① 論文} & \textbf{② 100 h} & \textbf{③ 960 h} \\
+\midrule
+\multirow{5}{*}{COALA}
+ & w/o Biasing & 39.49 (8.75 / 5.48) & \todo & \todo \\
+ & Oracle      & \textbf{6.12} (4.86 / 4.73) & \todo & \todo \\
+ & N=500       & 35.01 (8.87 / 6.09) & \todo & \todo \\
+ & N=1000      & 37.54 (9.18 / 6.16) & \todo & \todo \\
+ & N=5000      & OOM & \todo & \todo \\
+\midrule
+\multirow{3}{*}{+ BTI (DPD-Loss)}
+ & N=500       & \textbf{9.13} (5.57 / 5.20) & \todo & \todo \\
+ & N=1000      & \textbf{10.59} (5.98 / 5.49) & \todo & \todo \\
+ & N=5000      & \textbf{15.17} (7.33 / 6.50) & \todo & \todo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+N=5000 的「COALA」那格：論文寫 OOM。我們會實際跑一次（\texttt{-{}-mode file} 放整份 5000 詞的清單）。不管有沒有 OOM，結果都記下來。
+
+% ---------------------------------------------------------------------
+\section*{圖}
+
+{\small
+\begin{tabularx}{\linewidth}{l L ccc}
+\toprule
+\textbf{圖} & \textbf{內容} & \textbf{①} & \textbf{② 100 h} & \textbf{③ 960 h} \\
+\midrule
+Fig.~3 & B-WER vs 每句 target 數（1 / 2-5 / 6-24），不同 filter 方法，DPD & 有 & \todo & \todo \\
+Fig.~4 & 正負樣本分數分布（boxplot），Bias / MPD / DPD $\times$ 1 / 2-5 / 6-24 & 有 & \todo & \todo \\
+\textbf{額外} & 四組 loss 的學習曲線：\texttt{train/loss}、\texttt{pos\_score\_mean}、\texttt{neg\_score\_mean}（\textbf{教授交辦，論文沒有}） & 無 & \running & \todo \\
+\bottomrule
+\end{tabularx}
+}
+
+% ---------------------------------------------------------------------
+\section*{產生每一格的指令}
+
+以 DPD、test-clean、100 h 為例。換 split 就把 \texttt{test-clean} 改成 \texttt{test-other}；換模型就改 \texttt{exp/stage2\_dpd}。
+
+\textbf{Table 1}
+\begin{lstlisting}
+score_stage2.py --ckpt exp/stage2_dpd/best.pt --split test-clean --n 5000 --out exp/score/dpd.test-clean.N5000.jsonl
+  -> recall.py exp/score/dpd.test-clean.N5000.jsonl
+\end{lstlisting}
+
+\textbf{Table 2 w/o}
+\begin{lstlisting}
+evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --manifest data/manifest/test-clean.tsv --mode nobias --out ...
+  -> score.py
+\end{lstlisting}
+
+\textbf{Table 2 Oracle}：同上，\texttt{-{}-mode oracle}
+
+\textbf{Table 2 COALA、N}
+\begin{lstlisting}
+score_stage2.py ... --n N --dump-lists exp/lists/test-clean.N{N}.json
+  -> evaluate.py --mode file --entities exp/lists/test-clean.N{N}.json
+  -> score.py
+\end{lstlisting}
+
+\textbf{Table 2 + BTI、N}
+\begin{lstlisting}
+score_stage2.py ... --n N
+  -> bti.py ... --out exp/bti/dpd.test-clean.N{N}.json
+  -> evaluate.py --mode file --entities exp/bti/...
+  -> score.py
+\end{lstlisting}
+
+\texttt{score.py} 用官方 ref 算分：\texttt{-{}-refs .../ref/test-clean.biasing\_1000.tsv}。B-WER 只看 ref 的第 3 欄（句子裡的 rare word），和 N 無關，所以 N=5000 也用這個 ref。
+
+\end{document}
