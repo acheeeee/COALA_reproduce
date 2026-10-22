@@ -85,10 +85,7 @@ GPU & RTX 3090（ASR + Scoring + 評估）
 \end{tabularx}
 }
 
-\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
-  \item 70,000：論文只寫 7 epochs、batch size 1。
-  \item 70,000 來自官方 code（\texttt{github.com/Guo0911/COALA}，commit \texttt{7b2e008}）。
-\end{itemize}
+70,000 來自官方 code。論文只寫 7 epochs、batch size 1。
 
 {\small
 \begin{tabular}{lrr}
@@ -102,7 +99,6 @@ train-other-500 & 148,688 & 496.9 h \\
 合計 & 281,241 & 961.06 h \\
 \bottomrule
 \end{tabular}
-\quad 「960 h」是取整數的說法
 }
 
 % ---------------------------------------------------------------------
@@ -130,12 +126,12 @@ DPD-Loss   & \textbf{9.0} & \textbf{13.0} & \textbf{99.09} & \textbf{96.59} & \t
 \end{tabular}
 \end{center}
 
-\textbf{補充}：CTC-Filter、K-Prompt 是論文拿來比較的 baseline（別人的方法），我們不重現，只保留論文的數字。
+\textbf{補充}：
 \begin{itemize}[leftmargin=1.5em, itemsep=0pt]
   \item \textbf{CTC-Filter}（Yang et al., SLT 2024）：CTC 解碼的逐字稿 + 拼字相似度排名
   \item \textbf{K-Prompt}（Zhang et al., BigData 2023）：第 1 次轉寫 + 模糊比對
 \end{itemize}
-兩者都先轉成文字再比對，第一步轉錯就會連帶出錯（error propagation），所以在 test-other 上特別差。
+兩者都先轉成文字再比對，第一步轉錯就會連帶出錯（error propagation）。
 
 \subsection*{② 100 h}
 
@@ -232,20 +228,5 @@ Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
 \bottomrule
 \end{tabular}
 \end{center}
-
-% ---------------------------------------------------------------------
-\section*{圖}
-
-{\small
-\begin{tabularx}{\linewidth}{l L ccc}
-\toprule
-\textbf{圖} & \textbf{內容} & \textbf{①} & \textbf{② 100 h} & \textbf{③ 960 h} \\
-\midrule
-Fig.~3 & B-WER vs 每句 target 數（1 / 2-5 / 6-24），不同 filter 方法，DPD & 有 & \todo & \todo \\
-Fig.~4 & 正負樣本分數分布（boxplot），Bias / MPD / DPD $\times$ 1 / 2-5 / 6-24 & 有 & \todo & \todo \\
-\textbf{額外} & 四組 loss 的學習曲線：\texttt{train/loss}、\texttt{pos\_score\_mean}、\texttt{neg\_score\_mean}（\textbf{教授交辦，論文沒有}） & 無 & \running & \todo \\
-\bottomrule
-\end{tabularx}
-}
 
 \end{document}
