@@ -49,7 +49,7 @@ def parse_args():
     ap.add_argument("--manifest", default=None, help="預設 data/manifest/{split}.tsv")
     ap.add_argument("--n", type=int, required=True, help="biasing list 大小 N")
     ap.add_argument("--out", required=True)
-    ap.add_argument("--chunk", type=int, default=128, help="一次送幾條尾巴（OOM 就調小）")
+    ap.add_argument("--chunk", type=int, default=128, help="一次送幾條尾巴；某句 OOM 時那句自動減半")
     ap.add_argument("--save-top", type=int, default=50)
     ap.add_argument("--seed", type=int, default=0, help="自己抽清單（N 不是官方大小）時用")
     ap.add_argument("--limit", type=int, default=None)
@@ -81,19 +81,36 @@ def score_candidates(model, input_features, candidates, chunk):
     P = prefix.shape[0]
     base_cache = model.lm(inputs_embeds=prefix.unsqueeze(0), use_cache=True).past_key_values
 
-    scores = []
-    for i in range(0, len(candidates), chunk):
-        part = candidates[i:i + chunk]
-        s2 = build_stage2_sample(audio_tok, part, model.tokenizer, embed)
-        k = len(part)
-        cache = _fresh_cache(model, prefix, base_cache)   # forward 會就地加長 cache，每段要用新的複本
-        cache.batch_repeat_interleave(k)
-        mask = torch.cat([torch.ones(k, P, dtype=s2["suffix_mask"].dtype, device=prefix.device),
-                          s2["suffix_mask"]], dim=1)
-        out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
-                       past_key_values=cache, output_hidden_states=True)
-        scores.append(model.projector(out.hidden_states[-1], s2["suffix_mask"].float()))
+    # 長句的前綴長，複製 chunk 份 KV cache 可能 OOM → 只對這一句把 chunk 減半重試
+    # （chunk 小反而慢：forward 次數變多，2080 Ti 上 32 比 128 慢約 3 倍，所以不全域調小）
+    scores, i = [], 0
+    while i < len(candidates):
+        try:
+            s = _score_chunk(model, audio_tok, embed, prefix, base_cache, candidates[i:i + chunk])
+        except torch.cuda.OutOfMemoryError:
+            if chunk == 1:
+                raise
+            s = None
+        if s is None:                                     # 離開 except 後才釋放，失敗那段的張量才真的放掉
+            torch.cuda.empty_cache()
+            chunk //= 2
+            tqdm.write(f"  OOM（前綴 {P} token）→ chunk 改為 {chunk}")
+            continue
+        scores.append(s)
+        i += s.shape[0]
     return torch.cat(scores)
+
+
+def _score_chunk(model, audio_tok, embed, prefix, base_cache, part):
+    P, k = prefix.shape[0], len(part)
+    s2 = build_stage2_sample(audio_tok, part, model.tokenizer, embed)
+    cache = _fresh_cache(model, prefix, base_cache)   # forward 會就地加長 cache，每段要用新的複本
+    cache.batch_repeat_interleave(k)
+    mask = torch.cat([torch.ones(k, P, dtype=s2["suffix_mask"].dtype, device=prefix.device),
+                      s2["suffix_mask"]], dim=1)
+    out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
+                   past_key_values=cache, output_hidden_states=True)
+    return model.projector(out.hidden_states[-1], s2["suffix_mask"].float())
 
 
 def build_lists(split, n, ds, seed):
