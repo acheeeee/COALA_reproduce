@@ -54,11 +54,11 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 | Methods | Recall@95 clean | Recall@95 other | Recall#20 clean | Recall#20 other | Recall#50 clean | Recall#50 other |
 |---|---|---|---|---|---|---|
 | COALA − Bias-Loss | — | — | — | — | — | — |
-| COALA − MPD-Loss | — | — | — | — | — | — |
+| COALA − MPD-Loss | 13 | 63 | 96.93 | 90.76 | 98.44 | 94.40 |
 | COALA − DPD-Loss | 14 | 78 | 96.45 | 90.45 | 98.26 | 93.94 |
 | *（額外）COALA − disc 單獨* | — | — | — | — | — | — |
 
-> Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 24.8 / 91.8（clean / other）。模型用最後一個 epoch（`epoch6.pt`），和官方相同。
+> Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 MPD 17.2 / 71.6、DPD 24.8 / 91.8（clean / other）。模型用最後一個 epoch（`epoch6.pt`），和官方相同。
 
 ### ③ 960 h
 
