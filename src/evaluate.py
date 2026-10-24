@@ -16,6 +16,9 @@
     official  官方 code（recipes/inference.py 第 312–322 行）的設定：
               beam 20 + sampling（temperature 0.8、top-k 20、top-p 0.5）、repetition penalty 1.1、
               no-repeat 3-gram、length penalty 0.5、最多 300 token；用 --seed 固定亂數
+    greedy_norep  greedy 再加官方的兩個防重複設定（repetition penalty 1.1、no-repeat 3-gram），
+              速度和 greedy 差不多。用來看整份清單放進 prompt 時的重複迴圈是不是解碼造成的。
+              只傳 inputs_embeds 時，這兩個設定只看新生成的 token，不會懲罰 prompt 裡的 entity
 """
 
 import argparse
@@ -41,6 +44,8 @@ DECODE = {
     "official": dict(num_beams=20, do_sample=True, temperature=0.8, top_k=20, top_p=0.5,
                      repetition_penalty=1.1, no_repeat_ngram_size=3, length_penalty=0.5,
                      min_length=1, max_new_tokens=300),
+    "greedy_norep": dict(do_sample=False, num_beams=1, repetition_penalty=1.1,
+                         no_repeat_ngram_size=3, max_new_tokens=MAX_NEW_TOKENS),
 }
 
 
@@ -55,7 +60,7 @@ def parse_args():
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 句（快速測試）")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--decode", default="greedy", choices=list(DECODE),
-                    help="greedy（預設）或 official（官方 code 的 beam 20 + sampling）")
+                    help="greedy（預設）、official（官方 code 的 beam 20 + sampling）或 greedy_norep（greedy + 防重複）")
     ap.add_argument("--amp", default="auto", choices=AMP_CHOICES,
                     help="encoder 精度；auto = 3090/A5000 用 bf16、2080 Ti 用 fp16")
     return ap.parse_args()

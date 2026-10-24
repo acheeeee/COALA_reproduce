@@ -8,6 +8,7 @@
 # 用法（在 repo 根目錄）
 #   CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=3 nohup bash src/run_table2.sh test-clean bti > exp/t2_clean_bti.log 2>&1 &
 # 換 960 h：S1=exp/stage1_960/best.pt S2=exp/stage2_dpd_960/epoch6.pt TAG=960h ID=960h.dpd.e6 bash src/run_table2.sh ...
+# 換解碼：DECODE=greedy_norep bash src/run_table2.sh test-other full（hyp 檔名多一段 .greedy_norep，greedy 的檔名不變）
 #
 # 打分可以接續（score_stage2.py 會跳過已完成的句子）；解碼不能，中斷了那一項要整個重跑。
 
@@ -18,6 +19,8 @@ S1=${S1:-exp/stage1_tc100_s2/best.pt}
 S2=${S2:-exp/stage2_dpd/epoch6.pt}
 TAG=${TAG:-100h}
 ID=${ID:-dpd.e6}                           # 打分檔名；100 h 的 N=5000 已經打完叫 dpd.e6.*，沿用就不會重打
+DECODE=${DECODE:-greedy}                   # evaluate.py --decode
+[ "$DECODE" = greedy ] && DSUF= || DSUF=.$DECODE
 REF=/mnt/disk2/M11515125/fbai-speech/is21_deep_bias/ref/$SPLIT.biasing_1000.tsv   # B-WER 只看第 3 欄，和 N 無關
 SHORT=${SPLIT#test-}                       # clean / other
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -27,10 +30,10 @@ run() { echo; echo "[$(date +%m-%d_%H:%M)] $*"; "$@"; }
 
 decode_and_score() {                       # $1 = entity JSON, $2 = 名稱, $3 = 只跑前幾句（可省略）
     local ents=$1 name=$2 limit=${3:-}
-    local hyp=exp/hyp/$TAG.$SPLIT.$name.tsv
+    local hyp=exp/hyp/$TAG.$SPLIT.$name$DSUF.tsv
     run python src/evaluate.py --ckpt "$S1" --stack 2 --manifest data/manifest/$SPLIT.tsv \
-        --mode file --entities "$ents" --amp auto --out "$hyp" ${limit:+--limit $limit} &&
-    run python src/score_wer.py --hyps "$hyp" --refs "$REF" --name "$TAG.$SHORT.$name.greedy" \
+        --mode file --entities "$ents" --amp auto --decode "$DECODE" --out "$hyp" ${limit:+--limit $limit} &&
+    run python src/score_wer.py --hyps "$hyp" --refs "$REF" --name "$TAG.$SHORT.$name.$DECODE" \
         --tsv exp/wer_all.tsv ${limit:+--lenient}
 }
 
