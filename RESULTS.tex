@@ -142,7 +142,7 @@ DPD-Loss   & \textbf{9.0} & \textbf{13.0} & \textbf{99.09} & \textbf{96.59} & \t
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
  & clean & other & clean & other & clean & other \\
 \midrule
-Bias-Loss & 19 & \todo & 95.47 & \todo & 97.54 & \todo \\
+Bias-Loss & 19 & 105 & 95.47 & 88.62 & 97.54 & 92.72 \\
 MPD-Loss  & 13 & 63 & 96.93 & 90.76 & 98.44 & 94.40 \\
 DPD-Loss  & 14 & 78 & 96.45 & 90.45 & 98.26 & 93.94 \\
 \midrule
@@ -151,7 +151,7 @@ DPD-Loss  & 14 & 78 & 96.45 & 90.45 & 98.26 & 93.94 \\
 \end{tabular}
 \end{center}
 
-{\small Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / ---、MPD 17.2 / 71.6、DPD 24.8 / 91.8（clean / other）。模型用最後一個 epoch（\texttt{epoch6.pt}），和官方相同。\par}
+{\small Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8（clean / other）。模型用最後一個 epoch（\texttt{epoch6.pt}），和官方相同。\par}
 
 \subsection*{③ 960 h}
 
