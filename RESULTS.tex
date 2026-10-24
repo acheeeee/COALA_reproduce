@@ -194,7 +194,7 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \end{tabular}
 \end{center}
 
-\subsection*{100 h 官方定義對照（test-clean）}
+\subsection*{100 h 官方定義對照}
 
 \begin{center}
 {\small
@@ -204,6 +204,8 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \midrule
 w/o clean    & 48.02 (11.56 / 7.30) & 2026-10-22 \\
 Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
+w/o other    & 61.94 (27.23 / 23.54) & 2026-10-24 \\
+Oracle other & 16.71 (15.23 / 15.07) & 2026-10-24 \\
 \bottomrule
 \end{tabular}
 }
@@ -217,8 +219,8 @@ Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
 \textbf{方法} & \textbf{條件} & \textbf{① 論文} & \textbf{② 100 h} & \textbf{③ 960 h} \\
 \midrule
 \multirow{5}{*}{COALA}
- & w/o Biasing & 39.49 (8.75 / 5.48) & \todo & \todo \\
- & Oracle      & \textbf{6.12} (4.86 / 4.73) & \todo & \todo \\
+ & w/o Biasing & 39.49 (8.75 / 5.48) & 63.64 (27.26 / 23.12) & \todo \\
+ & Oracle      & \textbf{6.12} (4.86 / 4.73) & 18.67 (15.15 / 14.75) & \todo \\
  & N=500       & 35.01 (8.87 / 6.09) & \todo & \todo \\
  & N=1000      & 37.54 (9.18 / 6.16) & \todo & \todo \\
  & N=5000      & OOM & \todo & \todo \\
