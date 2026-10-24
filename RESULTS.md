@@ -68,6 +68,8 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 | COALA − MPD-Loss | — | — | — | — | — | — |
 | COALA − DPD-Loss | — | — | — | — | — | — |
 
+> 960 h 不單獨訓練 disc：Bias-Loss（0.9·disc + 0.1·log）已經包含 disc，disc 單獨的對照只在 100 h 做一次（2026-10-24 決定）。
+
 ---
 
 ## Table 2：ASR  B-WER（WER / U-WER）
