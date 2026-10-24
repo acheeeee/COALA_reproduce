@@ -211,6 +211,7 @@ Oracle other & 16.71 (15.23 / 15.07) & 2026-10-24 \\
 + BTI clean N=500  & 10.51 (5.55 / 4.97) & 2026-10-24 \\
 + BTI clean N=1000 & 12.86 (6.70 / 5.98) & 2026-10-24 \\
 + BTI clean N=5000 & 18.16 (8.19 / 7.03) & 2026-10-24 \\
+COALA other N=500 & 188.23 (455.32 / 483.71) & 2026-10-24 \\
 \bottomrule
 \end{tabular}
 }
@@ -226,7 +227,7 @@ Oracle other & 16.71 (15.23 / 15.07) & 2026-10-24 \\
 \multirow{5}{*}{COALA}
  & w/o Biasing & 39.49 (8.75 / 5.48) & 63.64 (27.26 / 23.12) & \todo \\
  & Oracle      & \textbf{6.12} (4.86 / 4.73) & 18.67 (15.15 / 14.75) & \todo \\
- & N=500       & 35.01 (8.87 / 6.09) & \todo & \todo \\
+ & N=500       & 35.01 (8.87 / 6.09) & 160.00 (424.07 / 454.14)$^\dagger$ & \todo \\
  & N=1000      & 37.54 (9.18 / 6.16) & \todo & \todo \\
  & N=5000      & OOM & \todo & \todo \\
 \midrule
@@ -237,5 +238,7 @@ Oracle other & 16.71 (15.23 / 15.07) & 2026-10-24 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+{\small $^\dagger$ N=500 整份清單（test-other）：greedy 解碼下 1009 / 2939 句（34\%）掉進重複迴圈（同一個字連續重複 5 次以上，直到長度上限），大量插入錯誤使 WER 超過 100\%。官方 code 用 repetition penalty 1.1 + no-repeat 3-gram 擋這種情況（DIFFERENCES B20）；BTI 只放 ≤10 個字，和訓練時相同，沒有這個問題。\par}
 
 \end{document}
