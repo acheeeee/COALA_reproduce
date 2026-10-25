@@ -7,7 +7,7 @@ results/
     hyp/     exp/hyp/*.tsv             解碼出來的逐字稿
     bti/     exp/bti/*.json            BTI 挑出的字
     curves/  <run>.epoch_summary.tsv   每個 epoch 的摘要
-             <run>.scalars.tsv         tensorboard 的逐步紀錄（tag / step / value），取代 50 MB 的 events 檔
+             <run>.scalars.tsv         tensorboard 的逐步紀錄（tag / step / value），每條曲線最多 5000 點，取代 50 MB 的 events 檔
     logs/    <log>.log                 進度條只留每 200 行一行和每段的最後一行，其他原樣
     MANIFEST.tsv                       每個檔的來源、行數、來源最後修改時間 → 用來判斷是不是最新的
 
@@ -28,7 +28,8 @@ EXP = Path("exp")
 OUT = Path("results")
 BAR = re.compile(r"\d+%\|.*\|\s*\d+/\d+ \[")         # tqdm 進度條
 KEEP_EVERY = 200
-SKIP = ("archive", "smoke", "lists")
+MAX_POINTS = 5000                                 # 每條曲線最多留幾個點（畫圖夠用）
+SKIP = ("archive", "smoke", "lists", "_try")
 
 manifest = []
 
@@ -83,7 +84,9 @@ def export_scalars(d, dst):
     with open(dst, "w", encoding="utf-8") as f:
         f.write("tag\tstep\tvalue\n")
         for tag in sorted(ea.Tags()["scalars"]):
-            for e in ea.Scalars(tag):
+            ev = ea.Scalars(tag)
+            stride = max(1, -(-len(ev) // MAX_POINTS))      # 太多點就等距抽樣，最後一點一定留
+            for e in ev[::stride] + ([ev[-1]] if (len(ev) - 1) % stride else []):
                 f.write(f"{tag}\t{e.step}\t{e.value:.6g}\n")
     record(dst, next(d.glob("events.out.tfevents.*")))
 
