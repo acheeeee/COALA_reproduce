@@ -70,7 +70,7 @@
 
 | # | 項目 | 官方 code | 我們 | 位置（官方） |
 |---|---|---|---|---|
-| B20 ★ | **解碼** | **beam 20 + sampling**（temperature 0.8、top-k 20、top-p 0.5）、repetition penalty 1.1、no-repeat 3-gram、length penalty 0.5、最多 300 token | **greedy**、最多 200 token | `recipes/inference.py` 第 312–322 行 |
+| B20 ★ | **解碼** | **beam 20 + sampling**（temperature 0.8、top-k 20、top-p 0.5）、repetition penalty 1.1、no-repeat 3-gram、length penalty 0.5、最多 300 token | **greedy + repetition penalty 1.1 + no-repeat 3-gram**（`--decode greedy_norep`，2026-10-25 起；只拿掉 beam 和 sampling）、最多 200 token。純 greedy 會掉進重複迴圈，結果留在 RESULTS 附錄 | `recipes/inference.py` 第 312–322 行 |
 | B21 ★ | **BTI** | 對「清單 + `<unbiased>`」排序取前 10，**沒有用 `<unbiased>` 過濾**；`<unbiased>` 若在前 10 名也一起寫進 ASR prompt | 取前 10 後，**丟掉分數低於 `<unbiased>` 的**（照論文第 281 行） | `recipes/inference.py` 第 239 行 |
 | B22 | 測試清單 N=500 / 1000 | **自己產生**（seed 42） | fbai 官方 ref 檔 | `scripts/create_bias_list.py` |
 | B23 | B-WER 的 biasing word | 清單 ∩ 參考答案的字（配 B8 的 E⁺ 定義），文字先經 Whisper normalizer、轉大寫 | fbai `score.py`：ref 檔第 3 欄 | `scripts/evaluation.py` |
@@ -98,7 +98,7 @@
 
 | 會影響 | 主要原因 |
 |---|---|
-| **WER / U-WER / B-WER**（Table 2） | B20 解碼（greedy vs beam 20）、B1–B4 架構、B8 E⁺ 定義、B9 正規化、A1 資料量 |
+| **WER / U-WER / B-WER**（Table 2） | B20 解碼（greedy + 防重複 vs beam 20 + sampling）、B1–B4 架構、B8 E⁺ 定義、B9 正規化、A1 資料量 |
 | **Recall@95**（Table 1） | C1 算法不同 → 和論文比時要用「官方 code 定義」那一行 |
 | **Recall#20 / #50**（Table 1） | 主要是 A1 資料量與 B1–B4 架構；算法和官方一致 |
 | **+ BTI 的 B-WER** | B21 門檻做法不同、B20 解碼 |

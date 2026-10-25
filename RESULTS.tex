@@ -78,6 +78,10 @@ Stage 1 CTC 權重 & 論文 0.3；\textbf{官方用 0.5} & 0.3（照論文） & 
 \rowline
 early stopping & 論文未寫；官方 \texttt{patience 10} & \texttt{patience 10}（同官方） & 同左 \\
 \rowline
+選 checkpoint & 官方推論用最後一個 & Stage 1 \texttt{best.pt}（val loss，epoch 5）；Stage 2 \texttt{epoch6.pt} & Stage 1 \texttt{best.pt}（= 最後一個 epoch 9）；Stage 2 \texttt{epoch6.pt} \\
+\rowline
+解碼（Table 2） & 論文未寫；官方 beam 20 + sampling + repetition penalty 1.1 + no-repeat 3-gram & \textbf{greedy + repetition penalty 1.1 + no-repeat 3-gram} & 同左 \\
+\rowline
 GPU & RTX 3090（ASR + Scoring + 評估）
     & RTX 3090（ASR + Scoring：DPD \& disc）；\newline RTX A5000（Scoring：MPD \& Bias-Loss）；\newline RTX 2080 Ti（評估）
     & RTX 2080 Ti（ASR）；\newline RTX 3090 / RTX A5000（Scoring + 評估） \\
@@ -146,12 +150,14 @@ Bias-Loss & 19 & 105 & 95.47 & 88.62 & 97.54 & 92.72 \\
 MPD-Loss  & 13 & 63 & 96.93 & 90.76 & 98.44 & 94.40 \\
 DPD-Loss  & 14 & 78 & 96.45 & 90.45 & 98.26 & 93.94 \\
 \midrule
-\textit{（額外）disc 單獨} & \todo & \todo & \todo & \todo & \todo & \todo \\
+\textit{（額外）disc 單獨} & 15 & 83 & 96.28 & 89.82 & 98.05 & 93.58 \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-{\small Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8（clean / other）。模型用最後一個 epoch（\texttt{epoch6.pt}），和官方相同。\par}
+{\small Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8、disc 24.3 / 82.4（clean / other）。模型用最後一個 epoch（\texttt{epoch6.pt}），和官方相同。Recall\#X 是全體合計（micro），和官方 code 相同。\par}
+
+{\small \textbf{disc 單獨沒有崩潰}：論文第 344 行說 Bias-Loss 必須和 log loss 合用，才能避免在多目標資料上 training collapse。我們 disc 單獨訓練的 loss 停在約 1.15 下不去（梯度衝突造成的下限），但排名能力沒有變差，兩個測試集都勝過 Bias-Loss。兩個測試集的排序都是 MPD > DPD > disc > Bias。\par}
 
 \subsection*{③ 960 h}
 
@@ -174,44 +180,27 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 % ---------------------------------------------------------------------
 \section*{Table 2：ASR B-WER（WER / U-WER）}
 
+每格是 B-WER (WER / U-WER)，fbai 定義，解碼 greedy + 防重複（\texttt{greedy\_norep}）。960 h 的 w/o、Oracle 只用 Stage 1（已練完），所以先填；整份清單跑中，BTI 要等 960 h 的 DPD 練完。
+
 \subsection*{test-clean}
 
 \begin{center}
+{\small
 \begin{tabular}{llccc}
 \toprule
 \textbf{方法} & \textbf{條件} & \textbf{① 論文} & \textbf{② 100 h} & \textbf{③ 960 h} \\
 \midrule
 \multirow{5}{*}{COALA}
- & w/o Biasing & 23.39 (4.54 / 2.34) & 49.35 (11.59 / 6.94) & \todo \\
- & Oracle      & \textbf{1.77} (1.90 / 1.92) & 6.09 (4.76 / 4.59) & \todo \\
- & N=500       & 20.38 (4.36 / 2.49) & \todo & \todo \\
- & N=1000      & 21.98 (4.56 / 2.53) & \todo & \todo \\
- & N=5000      & OOM & \todo & \todo \\
+ & w/o Biasing & 23.39 (4.54 / 2.34) & 48.41 (9.20 / 4.38) & 34.51 (6.25 / 2.77) \\
+ & Oracle      & \textbf{1.77} (1.90 / 1.92) & 6.35 (3.87 / 3.57) & 2.12 (2.06 / 2.05) \\
+ & N=500       & 20.38 (4.36 / 2.49) & 79.14 (159.10 / 168.95)$^\dagger$ & \running \\
+ & N=1000      & 21.98 (4.56 / 2.53) & 88.80 (142.77 / 149.41)$^\dagger$ & \running \\
+ & N=5000      & OOM & OOM$^\ddagger$ & \todo \\
 \midrule
 \multirow{3}{*}{+ BTI (DPD-Loss)}
- & N=500       & \textbf{3.25} (2.28 / 2.17) & 11.04 (5.59 / 4.92) & \todo \\
- & N=1000      & \textbf{3.86} (2.50 / 2.34) & 13.47 (6.77 / 5.95) & \todo \\
- & N=5000      & \textbf{6.96} (3.39 / 2.97) & 18.85 (8.19 / 6.88) & \todo \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\subsection*{100 h 官方定義對照}
-
-\begin{center}
-{\small
-\begin{tabular}{lcc}
-\toprule
-格子 & 官方定義 & 日期 \\
-\midrule
-w/o clean    & 48.02 (11.56 / 7.30) & 2026-10-22 \\
-Oracle clean & 5.79 (4.63 / 4.50)   & 2026-10-22 \\
-w/o other    & 61.94 (27.23 / 23.54) & 2026-10-24 \\
-Oracle other & 16.71 (15.23 / 15.07) & 2026-10-24 \\
-+ BTI clean N=500  & 10.51 (5.55 / 4.97) & 2026-10-24 \\
-+ BTI clean N=1000 & 12.86 (6.70 / 5.98) & 2026-10-24 \\
-+ BTI clean N=5000 & 18.16 (8.19 / 7.03) & 2026-10-24 \\
-COALA other N=500 & 188.23 (455.32 / 483.71) & 2026-10-24 \\
+ & N=500       & \textbf{3.25} (2.28 / 2.17) & 11.51 (5.05 / 4.25) & \todo \\
+ & N=1000      & \textbf{3.86} (2.50 / 2.34) & 13.87 (5.55 / 4.52) & \todo \\
+ & N=5000      & \textbf{6.96} (3.39 / 2.97) & 19.34 (6.93 / 5.41) & \todo \\
 \bottomrule
 \end{tabular}
 }
@@ -220,25 +209,90 @@ COALA other N=500 & 188.23 (455.32 / 483.71) & 2026-10-24 \\
 \subsection*{test-other}
 
 \begin{center}
+{\small
 \begin{tabular}{llccc}
 \toprule
 \textbf{方法} & \textbf{條件} & \textbf{① 論文} & \textbf{② 100 h} & \textbf{③ 960 h} \\
 \midrule
 \multirow{5}{*}{COALA}
- & w/o Biasing & 39.49 (8.75 / 5.48) & 63.64 (27.26 / 23.12) & \todo \\
- & Oracle      & \textbf{6.12} (4.86 / 4.73) & 18.67 (15.15 / 14.75) & \todo \\
- & N=500       & 35.01 (8.87 / 6.09) & 160.00 (424.07 / 454.14)$^\dagger$ & \todo \\
- & N=1000      & 37.54 (9.18 / 6.16) & \todo & \todo \\
- & N=5000      & OOM & \todo & \todo \\
+ & w/o Biasing & 39.49 (8.75 / 5.48) & 61.21 (15.79 / 10.62) & 49.46 (11.42 / 7.09) \\
+ & Oracle      & \textbf{6.12} (4.86 / 4.73) & 13.78 (9.70 / 9.24) & 6.22 (5.72 / 5.66) \\
+ & N=500       & 35.01 (8.87 / 6.09) & 85.78 (189.73 / 201.57)$^\dagger$ & \running \\
+ & N=1000      & 37.54 (9.18 / 6.16) & 91.78 (168.70 / 177.46)$^\dagger$ & \running \\
+ & N=5000      & OOM & OOM$^\ddagger$ & \todo \\
 \midrule
 \multirow{3}{*}{+ BTI (DPD-Loss)}
- & N=500       & \textbf{9.13} (5.57 / 5.20) & \todo & \todo \\
- & N=1000      & \textbf{10.59} (5.98 / 5.49) & \todo & \todo \\
- & N=5000      & \textbf{15.17} (7.33 / 6.50) & \todo & \todo \\
+ & N=500       & \textbf{9.13} (5.57 / 5.20) & 22.50 (11.53 / 10.28) & \todo \\
+ & N=1000      & \textbf{10.59} (5.98 / 5.49) & 24.52 (11.86 / 10.42) & \todo \\
+ & N=5000      & \textbf{15.17} (7.33 / 6.50) & 32.62 (13.80 / 11.66) & \todo \\
 \bottomrule
 \end{tabular}
+}
 \end{center}
 
-{\small $^\dagger$ N=500 整份清單（test-other）：greedy 解碼下 1009 / 2939 句（34\%）掉進重複迴圈（同一個字連續重複 5 次以上，直到長度上限），大量插入錯誤使 WER 超過 100\%。官方 code 用 repetition penalty 1.1 + no-repeat 3-gram 擋這種情況（DIFFERENCES B20）；BTI 只放 ≤10 個字，和訓練時相同，沒有這個問題。\par}
+{\small
+$^\dagger$ 整份清單 WER 超過 100\%：500～1000 個詞遠超過訓練時的 $\le$10 個，模型會照著清單唸出不在句子裡的字。greedy 下還會掉進重複迴圈（test-other N=500：1009 / 2939 句），WER 更高（見附錄）；加上防重複後約減半，但仍超過 100\%。崩潰約一半來自解碼、一半來自 prompt 太大。BTI 只放 $\le$10 個字，沒有這個問題。
 
+$^\ddagger$ 5000 個詞的 prompt 約 18,100 個 token，是 SmolLM2 上下文上限 8,192 的 2.2 倍；解碼時要再配置約 11.2 GB，在 24 GB 的 RTX 3090 上 OOM，和論文的定義（推論 VRAM 超過 24 GB）相同。\par}
+
+\subsection*{官方 code 的評分定義（Whisper 正規化、官方 rare word 判定，解碼相同）}
+
+\begin{center}
+{\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{split} & \textbf{條件} & \textbf{② 100 h} & \textbf{③ 960 h} \\
+\midrule
+clean & w/o Biasing & 47.01 (9.10 / 4.67) & 32.80 (6.15 / 3.03) \\
+clean & Oracle & 5.99 (3.76 / 3.50) & 1.88 (1.93 / 1.93) \\
+clean & COALA N=500 & 77.08 (164.59 / 174.81) & \running \\
+clean & COALA N=1000 & 87.61 (145.94 / 152.75) & \running \\
+clean & + BTI N=500 & 10.91 (4.99 / 4.29) & \todo \\
+clean & + BTI N=1000 & 13.23 (5.50 / 4.59) & \todo \\
+clean & + BTI N=5000 & 18.57 (6.95 / 5.60) & \todo \\
+\midrule
+other & w/o Biasing & 59.39 (15.62 / 10.97) & 47.23 (11.24 / 7.41) \\
+other & Oracle & 13.20 (9.52 / 9.13) & 5.67 (5.52 / 5.50) \\
+other & COALA N=500 & 84.06 (196.04 / 207.95) & \running \\
+other & COALA N=1000 & 90.63 (172.96 / 181.71) & \running \\
+other & + BTI N=500 & 21.45 (11.39 / 10.32) & \todo \\
+other & + BTI N=1000 & 23.40 (11.75 / 10.51) & \todo \\
+other & + BTI N=5000 & 31.11 (13.75 / 11.90) & \todo \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+\subsection*{附錄：greedy vs 防重複（100 h，fbai 定義）}
+
+\begin{center}
+{\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{split} & \textbf{條件} & \textbf{greedy} & \textbf{防重複（主表）} \\
+\midrule
+clean & w/o Biasing & 49.35 (11.59 / 6.94) & 48.41 (9.20 / 4.38) \\
+clean & Oracle & 6.09 (4.76 / 4.59) & 6.35 (3.87 / 3.57) \\
+clean & COALA N=500 & 152.07 (360.36 / 385.99) & 79.14 (159.10 / 168.95) \\
+clean & COALA N=1000 & 126.52 (383.58 / 415.22) & 88.80 (142.77 / 149.41) \\
+clean & + BTI N=500 & 11.04 (5.59 / 4.92) & 11.51 (5.05 / 4.25) \\
+clean & + BTI N=1000 & 13.47 (6.77 / 5.95) & 13.87 (5.55 / 4.52) \\
+clean & + BTI N=5000 & 18.85 (8.19 / 6.88) & 19.34 (6.93 / 5.41) \\
+\midrule
+other & w/o Biasing & 63.64 (27.26 / 23.12) & 61.21 (15.79 / 10.62) \\
+other & Oracle & 18.67 (15.15 / 14.75) & 13.78 (9.70 / 9.24) \\
+other & COALA N=500 & 160.00 (424.07 / 454.14) & 85.78 (189.73 / 201.57) \\
+other & COALA N=1000 & 145.63 (432.37 / 465.02) & 91.78 (168.70 / 177.46) \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+{\small
+\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
+  \item WER、U-WER 每一格都變好，連不放任何字的 w/o 也是（test-other U-WER 23.12 → 10.62）：greedy 本身就會在一部分句子重複。
+  \item BTI 與 clean Oracle 的 B-WER 略差（+0.3～0.5）：防重複會壓低已經說過的 token，rare word 合理地出現第二次、或被切成多個 token 時容易被擋掉。
+  \item test-other 的 BTI 只用防重複版跑。
+\end{itemize}
+}
 \end{document}

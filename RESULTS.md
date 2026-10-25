@@ -17,6 +17,8 @@
 | N=5000 清單 | 未公開 | 自己抽，`Random(f"0-{utt_id}")` | 同左 |
 | Stage 1 CTC 權重 | 論文 0.3；**官方用 `0.5`** | 0.3（照論文） | 0.3 |
 | early stopping | 論文未寫；官方`patience 10`| `patience 10`（同官方） | 同左 |
+| 選 checkpoint | 官方推論用最後一個 | Stage 1 `best.pt`（val loss，epoch 5）；Stage 2 最後一個 `epoch6.pt` | Stage 1 `best.pt`（= 最後一個 epoch 9）；Stage 2 `epoch6.pt` |
+| 解碼（Table 2） | 論文未寫；官方 beam 20 + sampling + repetition penalty 1.1 + no-repeat 3-gram | **greedy + repetition penalty 1.1 + no-repeat 3-gram**（`--decode greedy_norep`） | 同左 |
 | GPU | RTX 3090(ASR+Scoring+評估) |RTX 3090（ASR+Scoring: DPD&disc);RTX A5000（Scoring: MPD&Bias-Loss）；RTX 2080 Ti （評估） | RTX 2080 Ti（ASR）；RTX 3090 / RTX A5000（Scoring+評估） |
 
 > 70,000：論文只寫 7 epochs、batch size 1 
@@ -56,9 +58,11 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 | COALA − Bias-Loss | 19 | 105 | 95.47 | 88.62 | 97.54 | 92.72 |
 | COALA − MPD-Loss | 13 | 63 | 96.93 | 90.76 | 98.44 | 94.40 |
 | COALA − DPD-Loss | 14 | 78 | 96.45 | 90.45 | 98.26 | 93.94 |
-| *（額外）COALA − disc 單獨* | — | — | — | — | — | — |
+| *（額外）COALA − disc 單獨* | 15 | 83 | 96.28 | 89.82 | 98.05 | 93.58 |
 
-> Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8（clean / other）。模型用最後一個 epoch（`epoch6.pt`），和官方相同。
+> Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8、disc 24.3 / 82.4（clean / other）。模型用最後一個 epoch（`epoch6.pt`），和官方相同。Recall#X 是全體合計（micro），和官方 code 相同。
+>
+> **disc 單獨沒有崩潰**：論文第 344 行說 Bias-Loss 必須和 log loss 合用，才能避免在多目標資料上 training collapse。我們 disc 單獨訓練的 loss 停在約 1.15 下不去（梯度衝突造成的下限），但排名能力沒有變差，兩個測試集都**勝過** Bias-Loss。兩個測試集的排序都是 MPD > DPD > disc > Bias。
 
 ### ③ 960 h
 
@@ -76,55 +80,82 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 
 只重現論文 Table 2 的 COALA 兩列（其他 baseline 的數字是論文從原論文引用的，不重現）。
 
-- **COALA**：整份 biasing list 直接放進 prompt（N=5000 在論文中 OOM）
+- **COALA**：整份 biasing list 直接放進 prompt
 - **+ BTI (DPD-Loss)**：DPD 模型打分 → top-10 + `<unbiased>` 門檻 → 放進 prompt
 - w/o Biasing 和 Oracle 只跟 Stage 1 模型有關、不經過 Stage 2，所以「+ BTI」只列 N=500 / 1000 / 5000
 
-每格是 **B-WER (WER / U-WER)**。同一列直接比 ① 論文、② 100 h、③ 960 h。
+每格是 **B-WER (WER / U-WER)**，fbai 定義（`score_wer.py`），解碼 **greedy + 防重複**（`greedy_norep`，見上方設定表）。greedy 的結果在最後的附錄。
 
 ### test-clean
 
 | 方法 | 條件 | ① 論文 | ② 100 h | ③ 960 h |
 |---|---|---|---|---|
-| COALA | w/o Biasing | 23.39 (4.54 / 2.34) | 49.35 (11.59 / 6.94) | — |
-| COALA | Oracle | **1.77** (1.90 / 1.92) | 6.09 (4.76 / 4.59) | — |
-| COALA | N=500 | 20.38 (4.36 / 2.49) | — | — |
-| COALA | N=1000 | 21.98 (4.56 / 2.53) | — | — |
-| COALA | N=5000 | OOM | — | — |
-| + BTI (DPD-Loss) | N=500 | **3.25** (2.28 / 2.17) | 11.04 (5.59 / 4.92) | — |
-| + BTI (DPD-Loss) | N=1000 | **3.86** (2.50 / 2.34) | 13.47 (6.77 / 5.95) | — |
-| + BTI (DPD-Loss) | N=5000 | **6.96** (3.39 / 2.97) | 18.85 (8.19 / 6.88) | — |
-
-> 100 h 的 Table 2：**fbai 定義、greedy 解碼**（`score_wer.py`），完整紀錄在伺服器的 `exp/wer_all.tsv`。
-> 同一格用官方 code 的定義（Whisper 正規化、官方 rare word 判定）：
->
-> | 格子 | 官方定義 | 日期 |
-> |---|---|---|
-> | w/o clean | 48.02 (11.56 / 7.30) | 2026-10-22 |
-> | Oracle clean | 5.79 (4.63 / 4.50) | 2026-10-22 |
-> | w/o other | 61.94 (27.23 / 23.54) | 2026-10-24 |
-> | Oracle other | 16.71 (15.23 / 15.07) | 2026-10-24 |
-> | + BTI clean N=500 | 10.51 (5.55 / 4.97) | 2026-10-24 |
-> | + BTI clean N=1000 | 12.86 (6.70 / 5.98) | 2026-10-24 |
-> | + BTI clean N=5000 | 18.16 (8.19 / 7.03) | 2026-10-24 |
-> | COALA other N=500 | 188.23 (455.32 / 483.71) | 2026-10-24 |
+| COALA | w/o Biasing | 23.39 (4.54 / 2.34) | 48.41 (9.20 / 4.38) | 34.51 (6.25 / 2.77) |
+| COALA | Oracle | **1.77** (1.90 / 1.92) | 6.35 (3.87 / 3.57) | 2.12 (2.06 / 2.05) |
+| COALA | N=500 | 20.38 (4.36 / 2.49) | 79.14 (159.10 / 168.95) ⚠️ | ⏳ |
+| COALA | N=1000 | 21.98 (4.56 / 2.53) | 88.80 (142.77 / 149.41) ⚠️ | ⏳ |
+| COALA | N=5000 | OOM | OOM | — |
+| + BTI (DPD-Loss) | N=500 | **3.25** (2.28 / 2.17) | 11.51 (5.05 / 4.25) | — |
+| + BTI (DPD-Loss) | N=1000 | **3.86** (2.50 / 2.34) | 13.87 (5.55 / 4.52) | — |
+| + BTI (DPD-Loss) | N=5000 | **6.96** (3.39 / 2.97) | 19.34 (6.93 / 5.41) | — |
 
 ### test-other
 
 | 方法 | 條件 | ① 論文 | ② 100 h | ③ 960 h |
 |---|---|---|---|---|
-| COALA | w/o Biasing | 39.49 (8.75 / 5.48) | 63.64 (27.26 / 23.12) | — |
-| COALA | Oracle | **6.12** (4.86 / 4.73) | 18.67 (15.15 / 14.75) | — |
-| COALA | N=500 | 35.01 (8.87 / 6.09) | 160.00 (424.07 / 454.14) ⚠️ | — |
-| COALA | N=1000 | 37.54 (9.18 / 6.16) | — | — |
-| COALA | N=5000 | OOM | — | — |
-| + BTI (DPD-Loss) | N=500 | **9.13** (5.57 / 5.20) | — | — |
-| + BTI (DPD-Loss) | N=1000 | **10.59** (5.98 / 5.49) | — | — |
-| + BTI (DPD-Loss) | N=5000 | **15.17** (7.33 / 6.50) | — | — |
+| COALA | w/o Biasing | 39.49 (8.75 / 5.48) | 61.21 (15.79 / 10.62) | 49.46 (11.42 / 7.09) |
+| COALA | Oracle | **6.12** (4.86 / 4.73) | 13.78 (9.70 / 9.24) | 6.22 (5.72 / 5.66) |
+| COALA | N=500 | 35.01 (8.87 / 6.09) | 85.78 (189.73 / 201.57) ⚠️ | ⏳ |
+| COALA | N=1000 | 37.54 (9.18 / 6.16) | 91.78 (168.70 / 177.46) ⚠️ | ⏳ |
+| COALA | N=5000 | OOM | OOM | — |
+| + BTI (DPD-Loss) | N=500 | **9.13** (5.57 / 5.20) | 22.50 (11.53 / 10.28) | — |
+| + BTI (DPD-Loss) | N=1000 | **10.59** (5.98 / 5.49) | 24.52 (11.86 / 10.42) | — |
+| + BTI (DPD-Loss) | N=5000 | **15.17** (7.33 / 6.50) | 32.62 (13.80 / 11.66) | — |
 
-> ⚠️ N=500 整份清單（test-other）：greedy 解碼下 1009 / 2939 句（34%）掉進重複迴圈（同一個字連續重複 5 次以上，直到長度上限），大量插入錯誤使 WER 超過 100%。官方 code 用 repetition penalty 1.1 + no-repeat 3-gram 擋這種情況（DIFFERENCES B20）；BTI 只放 ≤10 個字，和訓練時相同，沒有這個問題。
+> 960 h 的 w/o、Oracle 只用 Stage 1（已練完，`best.pt` = epoch 9），所以先填；整份清單跑中，BTI 要等 960 h 的 DPD 練完。
+>
+> ⚠️ **整份清單（N=500 / 1000）WER 超過 100%**：500～1000 個詞放進 prompt，遠超過訓練時的 ≤10 個，模型會照著清單唸出不在句子裡的字，產生大量插入錯誤。greedy 解碼下還會掉進重複迴圈（test-other N=500：1009 / 2939 句，34%），WER 更高（424%，見附錄）；加上防重複後迴圈消失，WER 約減半，但仍超過 100%。所以**崩潰約一半來自解碼、一半來自 prompt 太大**。BTI 只放 ≤10 個字，和訓練時相同，沒有這個問題。
+>
+> **N=5000 = OOM（和論文一致）**：5000 個詞的 prompt 約 18,100 個 token（test-clean 18,151、test-other 18,056），是 SmolLM2 上下文上限 8,192 的 2.2 倍；解碼時要再配置約 11.2 GB，在 24 GB 的 RTX 3090 上 OOM。論文的 OOM 定義是「推論 VRAM 超過 24 GB」，條件相同。
 
-> N=5000 的「COALA」那格：論文寫 OOM。我們會實際跑一次（`--mode file` 放整份 5000 詞的清單）。不管有沒有 OOM，結果都記下來。
+**同一格用官方 code 的評分定義**（Whisper 正規化、官方 rare word 判定），解碼相同：
+
+| split | 條件 | ② 100 h | ③ 960 h |
+|---|---|---|---|
+| clean | w/o Biasing | 47.01 (9.10 / 4.67) | 32.80 (6.15 / 3.03) |
+| clean | Oracle | 5.99 (3.76 / 3.50) | 1.88 (1.93 / 1.93) |
+| clean | COALA N=500 | 77.08 (164.59 / 174.81) | ⏳ |
+| clean | COALA N=1000 | 87.61 (145.94 / 152.75) | ⏳ |
+| clean | + BTI N=500 | 10.91 (4.99 / 4.29) | — |
+| clean | + BTI N=1000 | 13.23 (5.50 / 4.59) | — |
+| clean | + BTI N=5000 | 18.57 (6.95 / 5.60) | — |
+| other | w/o Biasing | 59.39 (15.62 / 10.97) | 47.23 (11.24 / 7.41) |
+| other | Oracle | 13.20 (9.52 / 9.13) | 5.67 (5.52 / 5.50) |
+| other | COALA N=500 | 84.06 (196.04 / 207.95) | ⏳ |
+| other | COALA N=1000 | 90.63 (172.96 / 181.71) | ⏳ |
+| other | + BTI N=500 | 21.45 (11.39 / 10.32) | — |
+| other | + BTI N=1000 | 23.40 (11.75 / 10.51) | — |
+| other | + BTI N=5000 | 31.11 (13.75 / 11.90) | — |
+
+### 附錄：greedy vs 防重複（100 h，fbai 定義）
+
+| split | 條件 | greedy | 防重複（主表） |
+|---|---|---|---|
+| clean | w/o Biasing | 49.35 (11.59 / 6.94) | 48.41 (9.20 / 4.38) |
+| clean | Oracle | 6.09 (4.76 / 4.59) | 6.35 (3.87 / 3.57) |
+| clean | COALA N=500 | 152.07 (360.36 / 385.99) | 79.14 (159.10 / 168.95) |
+| clean | COALA N=1000 | 126.52 (383.58 / 415.22) | 88.80 (142.77 / 149.41) |
+| clean | + BTI N=500 | 11.04 (5.59 / 4.92) | 11.51 (5.05 / 4.25) |
+| clean | + BTI N=1000 | 13.47 (6.77 / 5.95) | 13.87 (5.55 / 4.52) |
+| clean | + BTI N=5000 | 18.85 (8.19 / 6.88) | 19.34 (6.93 / 5.41) |
+| other | w/o Biasing | 63.64 (27.26 / 23.12) | 61.21 (15.79 / 10.62) |
+| other | Oracle | 18.67 (15.15 / 14.75) | 13.78 (9.70 / 9.24) |
+| other | COALA N=500 | 160.00 (424.07 / 454.14) | 85.78 (189.73 / 201.57) |
+| other | COALA N=1000 | 145.63 (432.37 / 465.02) | 91.78 (168.70 / 177.46) |
+
+> - **WER、U-WER 每一格都變好**，連不放任何字的 w/o 也是（test-other U-WER 23.12 → 10.62）：greedy 本身就會在一部分句子重複，不只是整份清單。之前「100 h 的 test-other 比論文差 4 倍」有很大一部分是 greedy 造成的。
+> - **BTI 與 clean Oracle 的 B-WER 略差（+0.3～0.5）**：防重複會壓低已經說過的 token。rare word 在句子裡合理地出現第二次、或被切成多個 token 時，第二次容易被擋掉。
+> - test-other 的 BTI 只用防重複版跑（greedy 版停掉了，省下 3 次解碼）。
 
 ---
 
@@ -134,20 +165,21 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 |---|---|---|---|---|
 | Fig. 3 | B-WER vs 每句 target 數（1 / 2-5 / 6-24），不同 filter 方法，DPD | 有 | — | — |
 | Fig. 4 | 正負樣本分數分布（boxplot），Bias / MPD / DPD × 1 / 2-5 / 6-24 | 有 | — | — |
-| **額外** | 四組 loss 的學習曲線：`train/loss`、`pos_score_mean`、`neg_score_mean`（**教授交辦，論文沒有**） | 無 | ⏳ | — |
+| **額外** | 四組 loss 的學習曲線：`train/loss`、`pos_score_mean`、`neg_score_mean`（**教授交辦，論文沒有**） | 無 | 資料已備（`results/curves/`） | ⏳ |
 
 ---
 
 ## 產生每一格的指令
 
-以 DPD、test-clean、100 h 為例。換 split 就把 `test-clean` 改成 `test-other`；換模型就改 `exp/stage2_dpd`。
+結果檔在 `c_layer_eval` 分支的 `results/`（`collect_results.py` 從伺服器的 `exp/` 整理而來，`MANIFEST.tsv` 記每個檔的來源、行數、修改時間）。
 
 | 格子 | 指令 |
 |---|---|
-| Table 1 | `score_stage2.py --ckpt exp/stage2_dpd/best.pt --split test-clean --n 5000 --out exp/score/dpd.test-clean.N5000.jsonl` → `recall.py exp/score/dpd.test-clean.N5000.jsonl` |
-| Table 2 w/o | `evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --manifest data/manifest/test-clean.tsv --mode nobias --out …` → `score.py` |
-| Table 2 Oracle | 同上，`--mode oracle` |
-| Table 2 COALA、N | `score_stage2.py … --n N --dump-lists exp/lists/test-clean.N{N}.json` → `evaluate.py --mode file --entities exp/lists/test-clean.N{N}.json` → `score.py` |
-| Table 2 + BTI、N | `score_stage2.py … --n N` → `bti.py … --out exp/bti/dpd.test-clean.N{N}.json` → `evaluate.py --mode file --entities exp/bti/…` → `score.py` |
+| Table 1 | `score_stage2.py --ckpt exp/stage2_dpd/epoch6.pt --split test-clean --n 5000 --out exp/score/dpd.e6.test-clean.N5000.jsonl` → `recall.py … --tsv exp/recall_all.tsv` |
+| Table 2 w/o、Oracle | `evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --manifest data/manifest/test-clean.tsv --mode nobias（或 oracle） --decode greedy_norep --out …` → `score_wer.py … --tsv exp/wer_all.tsv` |
+| Table 2 BTI | `DECODE=greedy_norep bash src/run_table2.sh test-clean bti`（打分 N=500/1000/5000 → `bti.py` → 解碼 → 算分） |
+| Table 2 整份清單 | `DECODE=greedy_norep bash src/run_table2.sh test-clean full` |
+| 960 h | 上面的指令加 `S1=exp/stage1_960/best.pt S2=… TAG=960h` |
+| 整理紀錄 | `clean_records.py`（每項只留最新、greedy 搬到附錄）→ `collect_results.py` |
 
-`score.py` 用官方 ref 算分：`--refs …/ref/test-clean.biasing_1000.tsv`。B-WER 只看 ref 的第 3 欄（句子裡的 rare word），和 N 無關，所以 N=5000 也用這個 ref。
+`score_wer.py` 用官方 ref 算分：`--refs …/ref/test-clean.biasing_1000.tsv`。B-WER 只看 ref 的第 3 欄（句子裡的 rare word），和 N 無關，所以 N=5000 也用這個 ref。
