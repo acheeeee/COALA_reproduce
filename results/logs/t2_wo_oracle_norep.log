@@ -1,0 +1,119 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1806.44it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+nobias:   0%|          | 0/2620 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+nobias:   1%|          | 21/2620 [00:33<1:08:08,  1.57s/it]
+nobias:  88%|████████▊ | 2303/2620 [52:13<09:12,  1.74s/it]
+nobias: 100%|██████████| 2620/2620 [59:26<00:00,  1.36s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be fish for dinner trout and carrots and brushed potatoes a
+  entity 0 個: []
+  REF: stuff it into you his belly counselled him
+  HYP: stuffed into you his belly said him
+  entity 0 個: []
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early night fall the yellow lamps would light up here and there the squali
+  entity 0 個: []
+寫入 exp/hyp/100h.test-clean.nobias.greedy_norep.tsv（2620 句，解碼 greedy_norep，平均每句 0.0 個 entity）
+峰值 GPU 記憶體 3.10 GB
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ref 2620 句，hyp 2620 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（28 秒）
+fbai      B-WER  48.41  (WER  9.20 / U-WER  4.38)   biasing word 5,761 / 全部 52,576
+official  B-WER  47.01  (WER  9.10 / U-WER  4.67)   biasing word 5,546 / 全部 53,027
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1996.42it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+oracle:   0%|          | 0/2620 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+oracle:   1%|          | 19/2620 [00:32<1:13:49,  1.70s/it]
+oracle:  88%|████████▊ | 2298/2620 [52:00<09:40,  1.80s/it]
+oracle: 100%|██████████| 2620/2620 [59:27<00:00,  1.36s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  entity 8 個: ['bruised', 'carrots', 'fattened', 'ladled', 'mutton', 'peppered', 'stew', 'turnips']
+  REF: stuff it into you his belly counselled him
+  HYP: stuffed into you his belly counselled him
+  entity 2 個: ['belly', 'counselled']
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early nightfall the yellow lamps would light up here and there the squalid
+  entity 3 個: ['brothels', 'nightfall', 'squalid']
+寫入 exp/hyp/100h.test-clean.oracle.greedy_norep.tsv（2620 句，解碼 greedy_norep，平均每句 2.2 個 entity）
+峰值 GPU 記憶體 3.10 GB
+ref 2620 句，hyp 2620 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（27 秒）
+fbai      B-WER   6.35  (WER  3.87 / U-WER  3.57)   biasing word 5,761 / 全部 52,576
+official  B-WER   5.99  (WER  3.76 / U-WER  3.50)   biasing word 5,546 / 全部 53,027
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-other.tsv: 載入 2939 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1855.43it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+nobias:   0%|          | 0/2939 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+nobias:   1%|          | 25/2939 [00:30<58:23,  1.20s/it]
+nobias:  85%|████████▍ | 2487/2939 [52:16<09:09,  1.22s/it]
+nobias: 100%|██████████| 2939/2939 [1:01:07<00:00,  1.25s/it]
+  REF: there's iron they say in all our blood and a grain or two perhaps is good but hi
+  HYP: there's zion they say in all our blood and a grain or two perhaps is good but hi
+  entity 0 個: []
+  REF: margaret said mister hale as he returned from showing his guest downstairs i cou
+  HYP: mergrat said mister hale as he returned from showing his guest downstairs i coul
+  entity 0 個: []
+  REF: you don't mean that you thought me so silly
+  HYP: you don't mean that you thought me so silly
+  entity 0 個: []
+寫入 exp/hyp/100h.test-other.nobias.greedy_norep.tsv（2939 句，解碼 greedy_norep，平均每句 0.0 個 entity）
+峰值 GPU 記憶體 3.10 GB
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ref 2939 句，hyp 2939 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（28 秒）
+fbai      B-WER  61.21  (WER 15.79 / U-WER 10.62)   biasing word 5,350 / 全部 52,343
+official  B-WER  59.39  (WER 15.62 / U-WER 10.97)   biasing word 5,082 / 全部 52,882
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-other.tsv: 載入 2939 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1810.62it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+oracle:   0%|          | 0/2939 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+oracle:   1%|          | 26/2939 [00:30<57:00,  1.17s/it]
+oracle:  86%|████████▌ | 2520/2939 [51:52<08:56,  1.28s/it]
+oracle: 100%|██████████| 2939/2939 [59:49<00:00,  1.22s/it]
+  REF: there's iron they say in all our blood and a grain or two perhaps is good but hi
+  HYP: there's zion they say in all our blood and a grain or two perhaps is good but hi
+  entity 2 個: ['anon', 'harshly']
+  REF: margaret said mister hale as he returned from showing his guest downstairs i cou
+  HYP: mergrat said mister hale as he returned from showing his guest downstairs i coul
+  entity 0 個: []
+  REF: you don't mean that you thought me so silly
+  HYP: you don't mean that you thought me so silly
+  entity 0 個: []
+寫入 exp/hyp/100h.test-other.oracle.greedy_norep.tsv（2939 句，解碼 greedy_norep，平均每句 1.8 個 entity）
+峰值 GPU 記憶體 3.10 GB
+ref 2939 句，hyp 2939 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（28 秒）
+fbai      B-WER  13.78  (WER  9.70 / U-WER  9.24)   biasing word 5,350 / 全部 52,343
+official  B-WER  13.20  (WER  9.52 / U-WER  9.13)   biasing word 5,082 / 全部 52,882
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv

@@ -1,0 +1,88 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+輸出目錄: exp/stage1_tc100_s2
+data/manifest/train-clean-100.tsv: 載入 28539 句，跳過 0 句（>30.0s）
+data/manifest/dev-clean.tsv: 載入 2694 句，跳過 9 句（>30.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1796.65it/s]
+stack = 2  (每秒 25.0 個位置)
+可訓練參數 2,413,469
+總步數 71,340 (7134 步/epoch × 10 epochs)
+epoch 0:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 0:  28%|██▊       | 1984/7134 [13:16<33:55,  2.53it/s, ce=4.15, ctc=1.61, loss=4.63]
+[Step 2000] New best val loss: 4.3633
+epoch 0:  28%|██▊       | 2014/7134 [13:34<41:16,  2.07it/s, ce=4.15, ctc=1.61, loss=4.63]
+epoch 0:  55%|█████▌    | 3957/7134 [26:56<21:43,  2.44it/s, ce=0.677, ctc=1.07, loss=1]     
+[Step 4000] New best val loss: 1.1653
+epoch 0:  56%|█████▌    | 4000/7134 [27:15<25:59,  2.01it/s, ce=0.677, ctc=1.07, loss=1]
+epoch 0:  84%|████████▍ | 5992/7134 [41:06<07:40,  2.48it/s, ce=0.201, ctc=0.668, loss=0.402]
+[Step 6000] New best val loss: 0.6198
+epoch 0:  84%|████████▍ | 6022/7134 [41:20<09:06,  2.03it/s, ce=0.201, ctc=0.668, loss=0.402]
+epoch 0: 100%|██████████| 7134/7134 [48:44<00:00,  2.44it/s, ce=0.287, ctc=1.2, loss=0.647]
+[epoch 0 摘要] tr_total=2.5032 tr_ctc=1.7011 tr_ce=1.9929 | val_total=0.5892 val_ctc=0.9821 val_ce=0.2946 | 49.0 分
+[epoch 0] New best val loss: 0.5892
+epoch 1:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 1:  12%|█▏        | 837/7134 [05:44<41:17,  2.54it/s, ce=0.0678, ctc=1.11, loss=0.401]
+[Step 8000] New best val loss: 0.5676
+epoch 1:  12%|█▏        | 868/7134 [06:02<50:07,  2.08it/s, ce=0.0678, ctc=1.11, loss=0.401]
+epoch 1:  40%|███▉      | 2821/7134 [19:25<28:07,  2.56it/s, ce=0.203, ctc=0.902, loss=0.474]
+[Step 10000] New best val loss: 0.5183
+epoch 1:  40%|████      | 2866/7134 [19:42<33:08,  2.15it/s, ce=0.203, ctc=0.902, loss=0.474]
+epoch 1:  68%|██████▊   | 4861/7134 [33:30<15:26,  2.45it/s, ce=0.203, ctc=1.1, loss=0.533]
+[Step 12000] New best val loss: 0.4883
+epoch 1:  69%|██████▊   | 4890/7134 [33:48<18:40,  2.00it/s, ce=0.203, ctc=1.1, loss=0.533]
+epoch 1: 100%|██████████| 7134/7134 [49:08<00:00,  2.42it/s, ce=0.358, ctc=0.692, loss=0.565]
+[epoch 1 摘要] tr_total=0.4535 tr_ctc=0.8440 tr_ce=0.2003 | val_total=0.4882 val_ctc=0.9195 val_ce=0.2123 | 98.5 分
+[epoch 1] New best val loss: 0.4882
+epoch 2:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 2:  24%|██▍       | 1729/7134 [11:50<36:33,  2.46it/s, ce=0.083, ctc=0.58, loss=0.257]
+[Step 16000] New best val loss: 0.4843
+epoch 2:  25%|██▍       | 1758/7134 [12:04<44:27,  2.02it/s, ce=0.083, ctc=0.58, loss=0.257]
+epoch 2:  52%|█████▏    | 3704/7134 [25:20<22:37,  2.53it/s, ce=0.194, ctc=0.66, loss=0.392]
+[Step 18000] New best val loss: 0.4729
+epoch 2:  52%|█████▏    | 3734/7134 [25:39<27:22,  2.07it/s, ce=0.194, ctc=0.66, loss=0.392]
+epoch 2: 100%|██████████| 7134/7134 [48:39<00:00,  2.44it/s, ce=0.0753, ctc=0.824, loss=0.323]
+[epoch 2 摘要] tr_total=0.3837 tr_ctc=0.8125 tr_ce=0.1400 | val_total=0.4510 val_ctc=0.9032 val_ce=0.1801 | 147.5 分
+[epoch 2] New best val loss: 0.4510
+epoch 3:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 3:   7%|▋         | 528/7134 [03:58<43:55,  2.51it/s, ce=0.0489, ctc=0.92, loss=0.325] 
+[Step 22000] New best val loss: 0.4495
+epoch 3:   8%|▊         | 598/7134 [04:16<51:50,  2.10it/s, ce=0.0489, ctc=0.92, loss=0.325]
+epoch 3:  64%|██████▎   | 4543/7134 [30:18<16:20,  2.64it/s, ce=0.175, ctc=0.844, loss=0.428]
+[Step 26000] New best val loss: 0.4458
+epoch 3:  64%|██████▍   | 4598/7134 [30:36<18:57,  2.23it/s, ce=0.175, ctc=0.844, loss=0.428]
+epoch 3:  92%|█████████▏| 6581/7134 [43:22<03:29,  2.64it/s, ce=0.228, ctc=0.569, loss=0.398]
+[Step 28000] New best val loss: 0.4409
+epoch 3:  93%|█████████▎| 6614/7134 [43:41<03:59,  2.17it/s, ce=0.228, ctc=0.569, loss=0.398]
+epoch 3: 100%|██████████| 7134/7134 [46:59<00:00,  2.53it/s, ce=0.0889, ctc=0.79, loss=0.326]
+[epoch 3 摘要] tr_total=0.3510 tr_ctc=0.8003 tr_ce=0.1109 | val_total=0.4385 val_ctc=0.8980 val_ce=0.1691 | 194.9 分
+[epoch 3] New best val loss: 0.4385
+epoch 4:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 4:  48%|████▊     | 3401/7134 [22:46<23:49,  2.61it/s, ce=0.153, ctc=0.637, loss=0.344]
+[Step 32000] New best val loss: 0.4309
+epoch 4:  49%|████▊     | 3464/7134 [23:04<27:46,  2.20it/s, ce=0.153, ctc=0.637, loss=0.344]
+epoch 4: 100%|██████████| 7134/7134 [47:32<00:00,  2.50it/s, ce=0.0724, ctc=0.913, loss=0.346]
+[epoch 4 摘要] tr_total=0.3295 tr_ctc=0.7931 tr_ce=0.0915 | val_total=0.4284 val_ctc=0.8939 val_ce=0.1602 | 242.8 分
+[epoch 4] New best val loss: 0.4284
+epoch 5:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 5:  61%|██████    | 4331/7134 [28:41<20:54,  2.23it/s, ce=0.0233, ctc=0.925, loss=0.301]
+epoch 5: 100%|██████████| 7134/7134 [46:59<00:00,  2.53it/s, ce=0.035, ctc=0.905, loss=0.307]
+[epoch 5 摘要] tr_total=0.3133 tr_ctc=0.7882 tr_ce=0.0769 | val_total=0.4246 val_ctc=0.8891 val_ce=0.1579 | 290.1 分
+[epoch 5] New best val loss: 0.4246
+epoch 6:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 6:  60%|██████    | 4291/7134 [28:56<18:13,  2.60it/s, ce=0.248, ctc=0.628, loss=0.436]
+epoch 6: 100%|██████████| 7134/7134 [47:21<00:00,  2.51it/s, ce=0.0975, ctc=0.784, loss=0.333]
+[epoch 6 摘要] tr_total=0.2998 tr_ctc=0.7841 tr_ce=0.0646 | val_total=0.4249 val_ctc=0.8911 val_ce=0.1576 | 337.8 分
+epoch 7:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 7:  60%|██████    | 4298/7134 [28:45<19:03,  2.48it/s, ce=0.00834, ctc=0.548, loss=0.173]
+epoch 7: 100%|██████████| 7134/7134 [46:48<00:00,  2.54it/s, ce=0.0352, ctc=0.952, loss=0.321]
+[epoch 7 摘要] tr_total=0.2896 tr_ctc=0.7807 tr_ce=0.0553 | val_total=0.4316 val_ctc=0.8888 val_ce=0.1650 | 384.9 分
+epoch 8:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 8:  61%|██████    | 4336/7134 [28:39<18:02,  2.58it/s, ce=0.00701, ctc=1.19, loss=0.364]
+epoch 8: 100%|██████████| 7134/7134 [47:02<00:00,  2.53it/s, ce=0.00948, ctc=0.704, loss=0.221]
+[epoch 8 摘要] tr_total=0.2810 tr_ctc=0.7776 tr_ce=0.0477 | val_total=0.4375 val_ctc=0.8849 val_ce=0.1720 | 432.3 分
+epoch 9:   0%|          | 0/7134 [00:00<?, ?it/s]
+epoch 9:  61%|██████    | 4354/7134 [28:41<18:01,  2.57it/s, ce=0.0329, ctc=0.634, loss=0.223]
+epoch 9: 100%|██████████| 7134/7134 [46:37<00:00,  2.55it/s, ce=0.0125, ctc=0.878, loss=0.276]
+[epoch 9 摘要] tr_total=0.2738 tr_ctc=0.7748 tr_ce=0.0413 | val_total=0.4426 val_ctc=0.8834 val_ce=0.1775 | 479.2 分
+完成。摘要檔: exp/stage1_tc100_s2/epoch_summary.tsv

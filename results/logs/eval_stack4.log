@@ -1,0 +1,30 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2611 句，跳過 9 句（>30.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 2002.90it/s]
+/mnt/disk2/M11515125/COALA_reproduce/src/evaluate.py:82: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  ck = torch.load(args.ckpt, map_location=dev)
+載入 exp/stage1_tc100/best.pt（epoch 6, step 46000），跳過 880 個凍結參數
+nobias:   0%|          | 0/2611 [00:00<?, ?it/s]
+nobias:   8%|▊         | 200/2611 [06:40<1:45:28,  2.62s/it]
+nobias:  15%|█▌        | 400/2611 [12:12<45:28,  1.23s/it]
+nobias:  23%|██▎       | 600/2611 [18:23<1:06:39,  1.99s/it]
+nobias:  31%|███       | 800/2611 [23:56<28:39,  1.05it/s]
+nobias:  38%|███▊      | 1000/2611 [29:32<1:44:00,  3.87s/it]
+nobias:  46%|████▌     | 1200/2611 [35:02<18:19,  1.28it/s]
+nobias:  54%|█████▎    | 1400/2611 [41:47<1:32:39,  4.59s/it]
+nobias:  61%|██████▏   | 1600/2611 [48:53<49:24,  2.93s/it]
+nobias:  69%|██████▉   | 1800/2611 [55:53<1:10:59,  5.25s/it]
+nobias:  77%|███████▋  | 2000/2611 [1:02:04<15:43,  1.54s/it]
+nobias:  84%|████████▍ | 2200/2611 [1:09:09<10:09,  1.48s/it]
+nobias:  92%|█████████▏| 2400/2611 [1:15:45<05:02,  1.43s/it]
+nobias: 100%|█████████▉| 2600/2611 [1:22:26<00:28,  2.60s/it]
+nobias: 100%|██████████| 2611/2611 [1:23:05<00:00,  1.91s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped that a dish would be stew so that potatoes and carrots and canned tomat
+  REF: stuff it into you his belly counselled him
+  HYP: stuck in his pockets he had to be careful of his money
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early night's night the yellow lights would light up and in some places th
+寫入 exp/hyp/test-clean.stack4.nobias.tsv（2611 句）

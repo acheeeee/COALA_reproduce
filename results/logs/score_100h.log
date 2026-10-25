@@ -1,0 +1,283 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1932.35it/s]
+載入 Stage 2 exp/stage2_dpd/best.pt（loss=dpd, epoch 2, step 85617），Stage 1 = exp/stage1_tc100_s2/best.pt，encoder 精度 torch.float16
+自己抽 N=5000 的清單（seed=0，每句正樣本 + 5000 個干擾詞）：2620 句
+test-clean N=5000:   0%|          | 0/2620 [00:00<?, ?it/s]
+test-clean N=5000:  18%|█▊        | 470/2620 [33:30<2:33:15,  4.28s/it]
+Traceback (most recent call last):
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 201, in <module>
+    main()
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 188, in main
+    s = score_candidates(model, smp["input_features"].unsqueeze(0).to(dev), cands, args.chunk)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 93, in score_candidates
+    out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 286, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/modeling_layers.py", line 109, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, _ = self.self_attn(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 268, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 100, in sdpa_attention_forward
+    value = repeat_kv(value, module.num_key_value_groups)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 24, in repeat_kv
+    return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 138.00 MiB. GPU 0 has a total capacity of 10.75 GiB of which 108.75 MiB is free. Including non-PyTorch memory, this process has 10.64 GiB memory in use. Of the allocated memory 8.65 GiB is allocated by PyTorch, and 1.80 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-other.tsv: 載入 2939 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1780.10it/s]
+載入 Stage 2 exp/stage2_dpd/best.pt（loss=dpd, epoch 2, step 85617），Stage 1 = exp/stage1_tc100_s2/best.pt，encoder 精度 torch.float16
+自己抽 N=5000 的清單（seed=0，每句正樣本 + 5000 個干擾詞）：2939 句
+test-other N=5000:   0%|          | 0/2939 [00:00<?, ?it/s]
+test-other N=5000:  26%|██▋       | 773/2939 [54:40<2:27:43,  4.09s/it]
+test-other N=5000:  29%|██▉       | 845/2939 [59:22<2:27:07,  4.22s/it]
+Traceback (most recent call last):
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 201, in <module>
+    main()
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 188, in main
+    s = score_candidates(model, smp["input_features"].unsqueeze(0).to(dev), cands, args.chunk)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 93, in score_candidates
+    out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 286, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/modeling_layers.py", line 109, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, _ = self.self_attn(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 268, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 100, in sdpa_attention_forward
+    value = repeat_kv(value, module.num_key_value_groups)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 24, in repeat_kv
+    return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 128.00 MiB. GPU 0 has a total capacity of 10.75 GiB of which 48.75 MiB is free. Including non-PyTorch memory, this process has 10.70 GiB memory in use. Of the allocated memory 8.25 GiB is allocated by PyTorch, and 2.26 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1804.63it/s]
+載入 Stage 2 exp/stage2_mpd/best.pt（loss=mpd, epoch 2, step 65000），Stage 1 = exp/stage1_tc100_s2/best.pt，encoder 精度 torch.float16
+自己抽 N=5000 的清單（seed=0，每句正樣本 + 5000 個干擾詞）：2620 句
+test-clean N=5000:   0%|          | 0/2620 [00:00<?, ?it/s]
+test-clean N=5000:  18%|█▊        | 470/2620 [33:08<2:31:35,  4.23s/it]
+Traceback (most recent call last):
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 201, in <module>
+    main()
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 188, in main
+    s = score_candidates(model, smp["input_features"].unsqueeze(0).to(dev), cands, args.chunk)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 93, in score_candidates
+    out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 286, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/modeling_layers.py", line 109, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, _ = self.self_attn(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 268, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 100, in sdpa_attention_forward
+    value = repeat_kv(value, module.num_key_value_groups)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 24, in repeat_kv
+    return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 138.00 MiB. GPU 0 has a total capacity of 10.75 GiB of which 108.75 MiB is free. Including non-PyTorch memory, this process has 10.64 GiB memory in use. Of the allocated memory 8.65 GiB is allocated by PyTorch, and 1.80 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-other.tsv: 載入 2939 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1844.98it/s]
+載入 Stage 2 exp/stage2_mpd/best.pt（loss=mpd, epoch 2, step 65000），Stage 1 = exp/stage1_tc100_s2/best.pt，encoder 精度 torch.float16
+自己抽 N=5000 的清單（seed=0，每句正樣本 + 5000 個干擾詞）：2939 句
+test-other N=5000:   0%|          | 0/2939 [00:00<?, ?it/s]
+test-other N=5000:  27%|██▋       | 791/2939 [54:24<2:24:26,  4.03s/it]
+test-other N=5000:  29%|██▉       | 845/2939 [57:54<2:23:30,  4.11s/it]
+Traceback (most recent call last):
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 201, in <module>
+    main()
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 188, in main
+    s = score_candidates(model, smp["input_features"].unsqueeze(0).to(dev), cands, args.chunk)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/score_stage2.py", line 93, in score_candidates
+    out = model.lm(inputs_embeds=s2["suffix_embeds"], attention_mask=mask,
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/peft_model.py", line 2120, in forward
+    return self.base_model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/tuners/tuners_utils.py", line 359, in forward
+    return self.model(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 286, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/modeling_layers.py", line 109, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, _ = self.self_attn(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1844, in _call_impl
+    return inner()
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1790, in inner
+    result = forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 268, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 100, in sdpa_attention_forward
+    value = repeat_kv(value, module.num_key_value_groups)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 24, in repeat_kv
+    return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 128.00 MiB. GPU 0 has a total capacity of 10.75 GiB of which 48.75 MiB is free. Including non-PyTorch memory, this process has 10.70 GiB memory in use. Of the allocated memory 8.25 GiB is allocated by PyTorch, and 2.26 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

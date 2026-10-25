@@ -1,0 +1,39 @@
+nohup: ignoring input
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1888.70it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+nobias:   0%|          | 0/2620 [00:00<?, ?it/s]
+nobias:  83%|████████▎ | 2173/2620 [51:40<10:18,  1.38s/it]
+nobias: 100%|██████████| 2620/2620 [1:02:28<00:00,  1.43s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be fish for dinner trout and carrots and brushed potatoes a
+  entity 0 個: []
+  REF: stuff it into you his belly counselled him
+  HYP: stuffed into you his belly said him
+  entity 0 個: []
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early night fall the yellow lamps would light up here and there the squali
+  entity 0 個: []
+寫入 exp/hyp/test-clean.s2.nobias.tsv（2620 句，解碼 greedy，平均每句 0.0 個 entity）
+峰值 GPU 記憶體 3.10 GB
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1805.31it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.float16
+oracle:   0%|          | 0/2620 [00:00<?, ?it/s]
+oracle:  85%|████████▌ | 2238/2620 [52:20<08:07,  1.28s/it]
+oracle: 100%|██████████| 2620/2620 [1:01:26<00:00,  1.41s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  entity 8 個: ['bruised', 'carrots', 'fattened', 'ladled', 'mutton', 'peppered', 'stew', 'turnips']
+  REF: stuff it into you his belly counselled him
+  HYP: stuffed into you his belly counselled him
+  entity 2 個: ['belly', 'counselled']
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early nightfall the yellow lamps would light up here and there the squalid
+  entity 3 個: ['brothels', 'nightfall', 'squalid']
+寫入 exp/hyp/test-clean.s2.oracle.tsv（2620 句，解碼 greedy，平均每句 2.2 個 entity）
+峰值 GPU 記憶體 3.10 GB

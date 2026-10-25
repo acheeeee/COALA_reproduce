@@ -1,0 +1,18 @@
+nohup: ignoring input
+[10-25_11:43] python src/evaluate.py --ckpt exp/stage1_960/best.pt --stack 2 --manifest data/manifest/test-clean.tsv --mode file --entities exp/lists/test-clean.N500.json --amp auto --decode greedy_norep --out exp/hyp/960h.test-clean.full.N500.greedy_norep.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1719.90it/s]
+載入 Stage 1 exp/stage1_960/best.pt（epoch 7, step 546000），encoder 精度 torch.float16
+從 exp/lists/test-clean.N500.json 讀入 2620 句的 entity 清單
+file:   0%|          | 0/2620 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+file:   0%|          | 4/2620 [00:30<5:36:12,  7.71s/it]
+file:  22%|██▏       | 566/2620 [58:30<4:02:54,  7.10s/it]
+file:  44%|████▍     | 1160/2620 [1:58:12<1:53:16,  4.66s/it]
+file:  67%|██████▋   | 1756/2620 [2:57:00<1:27:29,  6.08s/it]
+file:  90%|████████▉ | 2356/2620 [3:55:19<19:08,  4.35s/it]
+file:  99%|█████████▊| 2582/2620 [4:18:36<04:25,  6.98s/it]

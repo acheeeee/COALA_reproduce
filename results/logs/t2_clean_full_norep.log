@@ -1,0 +1,139 @@
+nohup: ignoring input
+[10-25_02:51] python src/evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --stack 2 --manifest data/manifest/test-clean.tsv --mode file --entities exp/lists/test-clean.N500.json --amp auto --decode greedy_norep --out exp/hyp/100h.test-clean.full.N500.greedy_norep.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1908.89it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.bfloat16
+從 exp/lists/test-clean.N500.json 讀入 2620 句的 entity 清單
+file:   0%|          | 0/2620 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+file:   0%|          | 3/2620 [00:36<8:46:59, 12.08s/it]
+file:  20%|██        | 533/2620 [1:01:24<4:31:06,  7.79s/it]
+file:  42%|████▏     | 1106/2620 [2:01:55<2:54:12,  6.90s/it]
+file:  64%|██████▎   | 1670/2620 [3:01:37<2:01:06,  7.65s/it]
+file:  86%|████████▌ | 2258/2620 [4:01:18<46:34,  7.72s/it]
+file: 100%|██████████| 2620/2620 [4:40:12<00:00,  6.42s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be a drinker to dinner ratel, rippled, ritchie's, savor'd, 
+  entity 507 個: ['abdomens', 'acclamation', 'acomin', 'acrobatic', 'agonizing', 'ahriman', 'allegory', 'alpha', 'alpino', "am'rous"]
+  REF: stuff it into you his belly counselled him
+  HYP: stooped up to the surface, spout's, stork's, tayloe's, tee, tipplers, tony, trol
+  entity 502 個: ['abeuchapeta', 'abolish', 'acapulco', 'addisons', 'admirations', 'afroo', 'aikenside', 'airshaft', 'alcalizate', 'alhambra']
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early nightfall the yellow lamps would light up here and there, sprite's s
+  entity 503 個: ['accompanieth', 'acharnians', 'adurovich', "adventurer's", 'agley', 'agriculturists', 'albanian', "albertine's", 'aleema', 'alene']
+寫入 exp/hyp/100h.test-clean.full.N500.greedy_norep.tsv（2620 句，解碼 greedy_norep，平均每句 501.7 個 entity）
+峰值 GPU 記憶體 3.66 GB
+[10-25_07:31] python src/score_wer.py --hyps exp/hyp/100h.test-clean.full.N500.greedy_norep.tsv --refs /mnt/disk2/M11515125/fbai-speech/is21_deep_bias/ref/test-clean.biasing_1000.tsv --name 100h.clean.full.N500.greedy_norep --tsv exp/wer_all.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+ref 2620 句，hyp 2620 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（27 秒）
+fbai      B-WER  79.14  (WER 159.10 / U-WER 168.95)   biasing word 5,761 / 全部 52,576
+official  B-WER  77.08  (WER 164.59 / U-WER 174.81)   biasing word 5,546 / 全部 53,027
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv
+[10-25_07:32] python src/evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --stack 2 --manifest data/manifest/test-clean.tsv --mode file --entities exp/lists/test-clean.N1000.json --amp auto --decode greedy_norep --out exp/hyp/100h.test-clean.full.N1000.greedy_norep.tsv
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1903.43it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.bfloat16
+從 exp/lists/test-clean.N1000.json 讀入 2620 句的 entity 清單
+file:   0%|          | 0/2620 [00:00<?, ?it/s]/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+file:   0%|          | 6/2620 [00:40<4:53:11,  6.73s/it]
+file:  26%|██▋       | 688/2620 [58:57<2:18:41,  4.31s/it]
+file:  55%|█████▍    | 1428/2620 [1:57:44<1:32:50,  4.67s/it]
+file:  83%|████████▎ | 2162/2620 [2:57:05<38:29,  5.04s/it]
+file: 100%|██████████| 2620/2620 [3:34:20<00:00,  4.91s/it]
+  REF: he hoped there would be stew for dinner turnips and carrots and bruised potatoes
+  HYP: he hoped there would be a day for dinner a day to eat and drink a day of life a 
+  entity 1006 個: ["afear'd", 'aftermath', 'aftherwards', "aggressor's", 'aglionby', 'ahkond', 'ailes', 'aivan', 'alessandro', 'alfred']
+  REF: stuff it into you his belly counselled him
+  HYP: stretched out into you his belly counseled him to beware of the words, vergor's 
+  entity 1000 個: ['abdomens', 'abergeldie', "ablett's", 'accurst', 'acquisitive', 'adsalis', 'afiola', 'afion', 'agnadello', 'aguirre']
+  REF: after early nightfall the yellow lamps would light up here and there the squalid
+  HYP: after early morning the sun rises, wither's, vould, veitch, venante, vermouth, v
+  entity 1003 個: ["ab's", 'abortion', 'abramovich', 'accomodate', 'adaption', 'ademus', "advanc'd", 'aerolites', 'aes', 'aikwood']
+寫入 exp/hyp/100h.test-clean.full.N1000.greedy_norep.tsv（2620 句，解碼 greedy_norep，平均每句 1000.3 個 entity）
+峰值 GPU 記憶體 5.10 GB
+[10-25_11:06] python src/score_wer.py --hyps exp/hyp/100h.test-clean.full.N1000.greedy_norep.tsv --refs /mnt/disk2/M11515125/fbai-speech/is21_deep_bias/ref/test-clean.biasing_1000.tsv --name 100h.clean.full.N1000.greedy_norep --tsv exp/wer_all.tsv
+ref 2620 句，hyp 2620 句，缺 0 句
+官方定義：正規化器 transformers WhisperTokenizer.normalize；rare word 集合 207,923 個（27 秒）
+fbai      B-WER  88.80  (WER 142.77 / U-WER 149.41)   biasing word 5,761 / 全部 52,576
+official  B-WER  87.61  (WER 145.94 / U-WER 152.75)   biasing word 5,546 / 全部 53,027
+論文 COALA（test-clean / test-other）：w/o Biasing 23.39 (4.54 / 2.34) / 39.49 (8.75 / 5.48)、Oracle 1.77 (1.90 / 1.92) / 6.12 (4.86 / 4.73)
+附加到 exp/wer_all.tsv
+[10-25_11:07] python src/evaluate.py --ckpt exp/stage1_tc100_s2/best.pt --stack 2 --manifest data/manifest/test-clean.tsv --mode file --entities exp/lists/test-clean.N5000.json --amp auto --decode greedy_norep --out exp/hyp/100h.test-clean.full.N5000.first20.greedy_norep.tsv --limit 20
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+data/manifest/test-clean.tsv: 載入 2620 句，跳過 0 句（>1000000000.0s）
+Loading weights:   0%|          | 0/1259 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 272/272 [00:00<00:00, 1983.85it/s]
+載入 Stage 1 exp/stage1_tc100_s2/best.pt（epoch 5, step 42804），encoder 精度 torch.bfloat16
+從 exp/lists/test-clean.N5000.json 讀入 2620 句的 entity 清單
+file:   0%|          | 0/20 [00:00<?, ?it/s][transformers] Token indices sequence length is longer than the specified maximum sequence length for this model (18151 > 8192). Running this sequence through the model will result in indexing errors
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1306: UserWarning: Passing `repetition_penalty` with `inputs_embeds` and without `input_ids` to `generate` will apply the penalty only to newly generated tokens, not to the prompt.
+  warnings.warn(
+/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py:1314: UserWarning: Passing `no_repeat_ngram_size` with `inputs_embeds` and without `input_ids` to `generate` will apply n-gram constraints only to newly generated tokens, not to the prompt.
+  warnings.warn(
+file:   0%|          | 0/20 [00:01<?, ?it/s]
+Traceback (most recent call last):
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/evaluate.py", line 140, in <module>
+    main()
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/evaluate.py", line 127, in main
+    hyp = transcribe_one(model, s["input_features"], el, dev, args.decode)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/COALA_reproduce/src/evaluate.py", line 78, in transcribe_one
+    out_ids = model.lm.generate(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/peft/peft_model.py", line 2242, in generate
+    outputs = self.base_model.generate(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py", line 2802, in generate
+    result = decoding_method(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py", line 3002, in _sample
+    outputs = self._prefill(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/generation/utils.py", line 4109, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 939, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 467, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/generic.py", line 1068, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/utils/output_capturing.py", line 286, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 403, in forward
+    hidden_states = decoder_layer(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/modeling_layers.py", line 109, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 308, in forward
+    hidden_states, _ = self.self_attn(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/models/llama/modeling_llama.py", line 268, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/mnt/disk2/M11515125/miniconda3/envs/coala/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 158, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 11.24 GiB. GPU 0 has a total capacity of 23.69 GiB of which 7.61 GiB is free. Including non-PyTorch memory, this process has 16.07 GiB memory in use. Of the allocated memory 15.70 GiB is allocated by PyTorch, and 63.81 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[10-25_11:07] 全部完成
