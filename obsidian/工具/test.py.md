@@ -73,4 +73,4 @@ tags: [COALA, 工具, 檔案, 暫存]
 >
 > 真實尺寸 `(4, 1500, 1280)` 印出來看不懂，`(1, 8, 3)` 一眼就看得出 reshape 做了什麼。
 
-相關：`../PYTHON_STUDY.md` 裡有 NumPy shape 的自學清單。
+相關：`docs/PYTHON_STUDY.md` 裡有 NumPy shape 的自學清單。

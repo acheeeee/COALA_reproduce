@@ -7,8 +7,8 @@ tags: [COALA, 索引]
 論文：**COALA: Robust Contextualized Speech-augmented Language Modeling for ASR via Contrastive Regularizer and Biasing Score Estimation**
 arXiv:2607.08117 · INTERSPEECH 2026 · NTNU · 官方 code: `github.com/Guo0911/COALA`
 
-流程圖：`../COALA_pipeline.drawio`（拖進 https://app.diagrams.net/ 開啟）
-完整紀錄：`../TODO.md`
+流程圖：`../docs/COALA_pipeline.drawio`（拖進 https://app.diagrams.net/ 開啟）
+完整紀錄：`../docs/TODO.md`
 
 ---
 
@@ -131,7 +131,7 @@ B 模型層  4 adapter+CTC ✅   5 Stage 1 訓練 ✅（兩輪：stack=4 / stack
 C 評估層  9 BTI ☐   10 Recall ☐   11 WER ⚠️
 ```
 
-**→ 詳細的交接狀態、待辦、下一步見 `../STATUS.md`**
+**→ 詳細的交接狀態、待辦、下一步見 `../docs/STATUS.md`**
 
 ---
 
@@ -150,7 +150,7 @@ stack=2 → 25.0 位置/秒  vs  最大語速 23.0 字元/秒        →   0.00%
 | 最佳 val_total | 2.0163 | **0.4246** | **−79%** |
 | 停滯原因 | **欠擬合** | **過擬合** | 完全相反 |
 
-完整數據見 `../EXPERIMENTS.md`
+完整數據見 `../docs/EXPERIMENTS.md`
 
 ---
 

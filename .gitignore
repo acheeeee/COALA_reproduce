@@ -11,7 +11,8 @@ wandb/
 
 # 本地筆記：Obsidian 的視窗狀態、論文原始壓縮檔（已解開在 paper/src）
 obsidian/.obsidian/workspace.json
+obsidian/.obsidian/graph.json
 paper/*.tar.gz
 
 # LaTeX 編譯輸出（VS Code + tectonic）
-/build/
+build/

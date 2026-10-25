@@ -1,7 +1,7 @@
 # STATUS — 進度交接
 
 > **新對話從這裡開始。** 搭配 `paper-reproduce-mentor-agent.md`（導師規則）、
-> `EXPERIMENTS.md`（實驗數據）、`obsidian/`（每支檔案的詳細筆記）、
+> `EXPERIMENTS.md`（實驗數據）、`../obsidian/`（每支檔案的詳細筆記）、
 > `COALA_pipeline.drawio`（流程圖）一起看。
 >
 > 最後更新：2026-10-18

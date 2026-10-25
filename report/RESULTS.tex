@@ -1,7 +1,7 @@
 % =====================================================================
 %  RESULTS — 論文 vs 100 h vs 960 h
 %  Overleaf：左上 Menu → Compiler 選「XeLaTeX」（中文需要）
-%  本機 VS Code：存檔就會自動用 tectonic 編譯，PDF 在 build/RESULTS.pdf
+%  本機 VS Code：存檔就會自動用 tectonic 編譯，PDF 在 report/build/RESULTS.pdf
 % =====================================================================
 \documentclass[11pt,a4paper]{article}
 
@@ -135,7 +135,6 @@ DPD-Loss   & \textbf{9.0} & \textbf{13.0} & \textbf{99.09} & \textbf{96.59} & \t
   \item \textbf{CTC-Filter}（Yang et al., SLT 2024）：CTC 解碼的逐字稿 + 拼字相似度排名
   \item \textbf{K-Prompt}（Zhang et al., BigData 2023）：第 1 次轉寫 + 模糊比對
 \end{itemize}
-兩者都先轉成文字再比對，第一步轉錯就會連帶出錯（error propagation）。
 
 \subsection*{② 100 h}
 
@@ -155,10 +154,6 @@ DPD-Loss  & 14 & 78 & 96.45 & 90.45 & 98.26 & 93.94 \\
 \end{tabular}
 \end{center}
 
-{\small Recall@95 用官方 code 的算法（全體第 95 百分位），和論文表格的數字同一種算法；照論文文字逐句平均是 Bias 33.0 / 97.8、MPD 17.2 / 71.6、DPD 24.8 / 91.8、disc 24.3 / 82.4（clean / other）。模型用最後一個 epoch（\texttt{epoch6.pt}），和官方相同。Recall\#X 是全體合計（micro），和官方 code 相同。\par}
-
-{\small \textbf{disc 單獨沒有崩潰}：論文第 344 行說 Bias-Loss 必須和 log loss 合用，才能避免在多目標資料上 training collapse。我們 disc 單獨訓練的 loss 停在約 1.15 下不去（梯度衝突造成的下限），但排名能力沒有變差，兩個測試集都勝過 Bias-Loss。兩個測試集的排序都是 MPD > DPD > disc > Bias。\par}
-
 \subsection*{③ 960 h}
 
 \begin{center}
@@ -175,12 +170,8 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \end{tabular}
 \end{center}
 
-{\small 960 h 不單獨訓練 disc：Bias-Loss（0.9·disc + 0.1·log）已經包含 disc，disc 單獨的對照只在 100 h 做一次。\par}
-
 % ---------------------------------------------------------------------
 \section*{Table 2：ASR B-WER（WER / U-WER）}
-
-每格是 B-WER (WER / U-WER)，fbai 定義，解碼 greedy + 防重複（\texttt{greedy\_norep}）。960 h 的 w/o、Oracle 只用 Stage 1（已練完），所以先填；整份清單跑中，BTI 要等 960 h 的 DPD 練完。
 
 \subsection*{test-clean}
 
@@ -193,9 +184,9 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \multirow{5}{*}{COALA}
  & w/o Biasing & 23.39 (4.54 / 2.34) & 48.41 (9.20 / 4.38) & 34.51 (6.25 / 2.77) \\
  & Oracle      & \textbf{1.77} (1.90 / 1.92) & 6.35 (3.87 / 3.57) & 2.12 (2.06 / 2.05) \\
- & N=500       & 20.38 (4.36 / 2.49) & 79.14 (159.10 / 168.95)$^\dagger$ & \running \\
- & N=1000      & 21.98 (4.56 / 2.53) & 88.80 (142.77 / 149.41)$^\dagger$ & \running \\
- & N=5000      & OOM & OOM$^\ddagger$ & \todo \\
+ & N=500       & 20.38 (4.36 / 2.49) & 79.14 (159.10 / 168.95) & \running \\
+ & N=1000      & 21.98 (4.56 / 2.53) & 88.80 (142.77 / 149.41) & \running \\
+ & N=5000      & OOM & OOM & \todo \\
 \midrule
 \multirow{3}{*}{+ BTI (DPD-Loss)}
  & N=500       & \textbf{3.25} (2.28 / 2.17) & 11.51 (5.05 / 4.25) & \todo \\
@@ -217,9 +208,9 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \multirow{5}{*}{COALA}
  & w/o Biasing & 39.49 (8.75 / 5.48) & 61.21 (15.79 / 10.62) & 49.46 (11.42 / 7.09) \\
  & Oracle      & \textbf{6.12} (4.86 / 4.73) & 13.78 (9.70 / 9.24) & 6.22 (5.72 / 5.66) \\
- & N=500       & 35.01 (8.87 / 6.09) & 85.78 (189.73 / 201.57)$^\dagger$ & \running \\
- & N=1000      & 37.54 (9.18 / 6.16) & 91.78 (168.70 / 177.46)$^\dagger$ & \running \\
- & N=5000      & OOM & OOM$^\ddagger$ & \todo \\
+ & N=500       & 35.01 (8.87 / 6.09) & 85.78 (189.73 / 201.57) & \running \\
+ & N=1000      & 37.54 (9.18 / 6.16) & 91.78 (168.70 / 177.46) & \running \\
+ & N=5000      & OOM & OOM & \todo \\
 \midrule
 \multirow{3}{*}{+ BTI (DPD-Loss)}
  & N=500       & \textbf{9.13} (5.57 / 5.20) & 22.50 (11.53 / 10.28) & \todo \\
@@ -229,11 +220,6 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 \end{tabular}
 }
 \end{center}
-
-{\small
-$^\dagger$ 整份清單 WER 超過 100\%：500～1000 個詞遠超過訓練時的 $\le$10 個，模型會照著清單唸出不在句子裡的字。greedy 下還會掉進重複迴圈（test-other N=500：1009 / 2939 句），WER 更高（見附錄）；加上防重複後約減半，但仍超過 100\%。崩潰約一半來自解碼、一半來自 prompt 太大。BTI 只放 $\le$10 個字，沒有這個問題。
-
-$^\ddagger$ 5000 個詞的 prompt 約 18,100 個 token，是 SmolLM2 上下文上限 8,192 的 2.2 倍；解碼時要再配置約 11.2 GB，在 24 GB 的 RTX 3090 上 OOM，和論文的定義（推論 VRAM 超過 24 GB）相同。\par}
 
 \subsection*{官方 code 的評分定義（Whisper 正規化、官方 rare word 判定，解碼相同）}
 
@@ -288,11 +274,4 @@ other & COALA N=1000 & 145.63 (432.37 / 465.02) & 91.78 (168.70 / 177.46) \\
 }
 \end{center}
 
-{\small
-\begin{itemize}[leftmargin=1.5em, itemsep=0pt]
-  \item WER、U-WER 每一格都變好，連不放任何字的 w/o 也是（test-other U-WER 23.12 → 10.62）：greedy 本身就會在一部分句子重複。
-  \item BTI 與 clean Oracle 的 B-WER 略差（+0.3～0.5）：防重複會壓低已經說過的 token，rare word 合理地出現第二次、或被切成多個 token 時容易被擋掉。
-  \item test-other 的 BTI 只用防重複版跑。
-\end{itemize}
-}
 \end{document}
