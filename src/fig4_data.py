@@ -10,7 +10,8 @@
        python src/score_stage2.py --ckpt exp/stage2_dpd/epoch6.pt --split test-clean \\
            --manifest data/manifest/fig4.test-clean.tsv --n 5000 --save-top 99999 --out exp/fig4/100h/dpd.test-clean.jsonl
     3. python src/fig4_data.py collect --tag 100h
-       正樣本全部留下、負樣本每句隨機留 --neg-per-utt 個（預設 50）→ exp/fig4_scores.tsv（幾 MB，可上傳）
+       正樣本全部留下、負樣本每句隨機留 --neg-per-utt 個（預設 50）、<unbiased> 每句 1 個
+       → exp/fig4_scores.tsv（幾 MB，可上傳）
 """
 
 import argparse
@@ -78,6 +79,7 @@ def collect(args):
                 neg = rng.sample(neg, min(args.neg_per_utt, len(neg)))
                 rows += [[args.tag, loss, split, b, "pos", f"{s:.4f}"] for s in pos]
                 rows += [[args.tag, loss, split, b, "neg", f"{s:.4f}"] for s in neg]
+                rows.append([args.tag, loss, split, b, "unb", f"{r['s_unbiased']:.4f}"])     # BTI 的門檻
                 n_utt += 1
                 n_pos += len(pos)
             print(f"{loss:<5} {split}：{n_utt} 句，正樣本 {n_pos} 個")

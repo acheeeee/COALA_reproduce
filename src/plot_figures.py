@@ -2,7 +2,7 @@
 
 score_training_<tag>.png    Stage 2 訓練過程：正確答案、干擾字、<unbiased> 的平均分數（每種 loss 一格）
 fig3_bwer_<tag>.png         論文 Fig. 3：B-WER vs 每句 target 數（需要 bwer_by_targets.py 的輸出）
-fig4_boxplot_<tag>.png      論文 Fig. 4：正負樣本分數的盒狀圖，依每句 target 數分組（需要 fig4_data.py 的輸出）
+fig4_boxplot_<tag>.png      論文 Fig. 4：正樣本、負樣本、<unbiased> 分數的盒狀圖，依每句 target 數分組（需要 fig4_data.py 的輸出）
 
 缺資料的圖會跳過並印出原因。
 
@@ -119,11 +119,11 @@ def fig4_boxplot(results, out, tag):
     axes = np.atleast_1d(axes)
     for i, (ax, (loss, name)) in enumerate(zip(axes, panels)):
         for j, (b, _) in enumerate(BUCKETS3):
-            for off, label, color in ((-0.18, "pos", POS), (0.18, "neg", NEG)):
+            for off, label, color in ((-0.26, "pos", POS), (0, "neg", NEG), (0.26, "unb", UNB)):
                 v = data.get((loss, b, label), [])
                 if not v:
                     continue
-                bp = ax.boxplot(v, positions=[j + off], widths=0.3, showfliers=False, patch_artist=True,
+                bp = ax.boxplot(v, positions=[j + off], widths=0.22, showfliers=False, patch_artist=True,
                                 medianprops=dict(color="#555555"), whiskerprops=dict(color="#666666"),
                                 capprops=dict(color="#666666"), boxprops=dict(edgecolor="#666666"))
                 bp["boxes"][0].set_facecolor(color)
@@ -132,8 +132,8 @@ def fig4_boxplot(results, out, tag):
         ax.set_xlabel(f"({chr(97 + i)}) {name}", fontsize=12, labelpad=8)
         ax.grid(axis="x", visible=False)
     axes[0].set_ylabel("Score")
-    handles = [plt.Rectangle((0, 0), 1, 1, fc=POS, ec="#666666"), plt.Rectangle((0, 0), 1, 1, fc=NEG, ec="#666666")]
-    axes[0].legend(handles, ["Positive", "Negative"], title="Label", loc="best")
+    handles = [plt.Rectangle((0, 0), 1, 1, fc=c, ec="#666666") for c in (POS, NEG, UNB)]
+    axes[0].legend(handles, ["Positive", "Negative", "<unbiased>"], title="Label", loc="best")
     fig.tight_layout()
     path = Path(out) / f"fig4_boxplot_{tag}.png"
     fig.savefig(path, dpi=200, bbox_inches="tight")
