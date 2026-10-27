@@ -172,7 +172,7 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 % ---------------------------------------------------------------------
 \section*{Table 2：ASR B-WER（WER / U-WER）}
 
-\subsection*{test-clean}
+\subsection*{test-clean（fbai）}
 
 \begin{center}
 {\small
@@ -196,7 +196,7 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 }
 \end{center}
 
-\subsection*{test-other}
+\subsection*{test-other（fbai）}
 
 \begin{center}
 {\small
@@ -220,7 +220,7 @@ DPD-Loss  & \todo & \todo & \todo & \todo & \todo & \todo \\
 }
 \end{center}
 
-\subsection*{官方 code 的評分定義（Whisper 正規化、官方 rare word 判定，解碼相同）}
+\subsection*{官方 code 的評分定義}
 
 \begin{center}
 {\small
@@ -243,31 +243,6 @@ other & COALA N=1000 & 90.63 (172.96 / 181.71) & \todo \\
 other & + BTI N=500 & 21.45 (11.39 / 10.32) & \todo \\
 other & + BTI N=1000 & 23.40 (11.75 / 10.51) & \todo \\
 other & + BTI N=5000 & 31.11 (13.75 / 11.90) & \todo \\
-\bottomrule
-\end{tabular}
-}
-\end{center}
-
-\subsection*{附錄：greedy vs 防重複（100 h，fbai 定義）}
-
-\begin{center}
-{\small
-\begin{tabular}{llcc}
-\toprule
-\textbf{split} & \textbf{條件} & \textbf{greedy} & \textbf{防重複（主表）} \\
-\midrule
-clean & w/o Biasing & 49.35 (11.59 / 6.94) & 48.41 (9.20 / 4.38) \\
-clean & Oracle & 6.09 (4.76 / 4.59) & 6.35 (3.87 / 3.57) \\
-clean & COALA N=500 & 152.07 (360.36 / 385.99) & 79.14 (159.10 / 168.95) \\
-clean & COALA N=1000 & 126.52 (383.58 / 415.22) & 88.80 (142.77 / 149.41) \\
-clean & + BTI N=500 & 11.04 (5.59 / 4.92) & 11.51 (5.05 / 4.25) \\
-clean & + BTI N=1000 & 13.47 (6.77 / 5.95) & 13.87 (5.55 / 4.52) \\
-clean & + BTI N=5000 & 18.85 (8.19 / 6.88) & 19.34 (6.93 / 5.41) \\
-\midrule
-other & w/o Biasing & 63.64 (27.26 / 23.12) & 61.21 (15.79 / 10.62) \\
-other & Oracle & 18.67 (15.15 / 14.75) & 13.78 (9.70 / 9.24) \\
-other & COALA N=500 & 160.00 (424.07 / 454.14) & 85.78 (189.73 / 201.57) \\
-other & COALA N=1000 & 145.63 (432.37 / 465.02) & 91.78 (168.70 / 177.46) \\
 \bottomrule
 \end{tabular}
 }
