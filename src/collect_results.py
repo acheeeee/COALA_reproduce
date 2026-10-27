@@ -9,6 +9,7 @@ results/
     curves/  <run>.epoch_summary.tsv   每個 epoch 的摘要
              <run>.scalars.tsv         tensorboard 的逐步紀錄（tag / step / value），每條曲線最多 5000 點，取代 50 MB 的 events 檔
     logs/    <log>.log                 進度條只留每 200 行一行和每段的最後一行，其他原樣
+    figures_data/                      論文 Fig. 3、Fig. 4 的資料（bwer_by_targets.py、fig4_data.py 的輸出）
     MANIFEST.tsv                       每個檔的來源、行數、來源最後修改時間 → 用來判斷是不是最新的
 
 不複製：模型檔（*.pt）、exp/lists/（可重新產生，N5000 超過 GitHub 單檔 100 MB）、exp/archive/*.bak.tsv、
@@ -101,6 +102,10 @@ def main():
             copy(EXP / name, OUT / name)
     if (EXP / "archive/wer_greedy.tsv").exists():
         copy(EXP / "archive/wer_greedy.tsv", OUT / "wer_greedy.tsv")
+
+    for name in ("fig3_bwer_by_targets.tsv", "fig4_scores.tsv"):          # 畫論文 Fig. 3、Fig. 4 用
+        if (EXP / name).exists():
+            copy(EXP / name, OUT / "figures_data" / name)
 
     for pattern, sub in (("score/*.e6.*.jsonl", "score"), ("hyp/*.tsv", "hyp"), ("bti/*.json", "bti")):
         for p in sorted(EXP.glob(pattern)):
