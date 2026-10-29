@@ -1,0 +1,22 @@
+show() {
+  [ -f exp/$1.log ] || return
+  last=$(tail -c 2000 exp/$1.log | tr '\r' '\n' | grep -av '^\s*$' | tail -n 1)
+  case "$last" in
+    "nohup: ignoring input") last=" 排隊中" ;;
+    *全部完成*|*完成。*)      last=" $last" ;;
+  esac
+  printf "  %-24s %s\n" "$2" "$last"
+}
+echo "############ GPU 0"
+show 960h/stage2_dpd           "960h Stage 2 DPD"
+show 960h/stage2_mpd           "960h Stage 2 MPD"
+echo "############ GPU 1"
+show 960h/stage2_bias          "960h Stage 2 Bias"
+
+echo "############ 已完成的 epoch（共 7 個）"
+for m in dpd bias mpd; do
+  f=exp/960h/stage2_$m/epoch_summary.tsv
+  printf "  %-5s %s\n" "$m" "$([ -f $f ] && echo $(( $(wc -l < $f) - 1 )) || echo 0)"
+done
+echo "############ GPU 記憶體"
+nvidia-smi --query-gpu=index,name,memory.used,utilization.gpu --format=csv,noheader

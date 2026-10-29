@@ -35,3 +35,11 @@ name	style	B-WER	WER	U-WER	hyps
 960h.other.nobias.greedy_norep	official	47.23	11.24	7.41	exp/hyp/960h.test-other.nobias.greedy_norep.tsv
 960h.other.oracle.greedy_norep	fbai	6.22	5.72	5.66	exp/hyp/960h.test-other.oracle.greedy_norep.tsv
 960h.other.oracle.greedy_norep	official	5.67	5.52	5.50	exp/hyp/960h.test-other.oracle.greedy_norep.tsv
+960h.clean.full.N500.greedy_norep	fbai	83.20	153.21	161.83	exp/hyp/960h.test-clean.full.N500.greedy_norep.tsv
+960h.clean.full.N500.greedy_norep	official	82.58	174.51	185.25	exp/hyp/960h.test-clean.full.N500.greedy_norep.tsv
+960h.clean.full.N1000.greedy_norep	fbai	98.11	120.42	123.16	exp/hyp/960h.test-clean.full.N1000.greedy_norep.tsv
+960h.clean.full.N1000.greedy_norep	official	97.94	122.62	125.50	exp/hyp/960h.test-clean.full.N1000.greedy_norep.tsv
+960h.other.full.N500.greedy_norep	fbai	86.67	174.04	183.99	exp/hyp/960h.test-other.full.N500.greedy_norep.tsv
+960h.other.full.N500.greedy_norep	official	85.95	197.56	209.43	exp/hyp/960h.test-other.full.N500.greedy_norep.tsv
+960h.other.full.N1000.greedy_norep	fbai	98.92	123.15	125.91	exp/hyp/960h.test-other.full.N1000.greedy_norep.tsv
+960h.other.full.N1000.greedy_norep	official	98.84	125.48	128.32	exp/hyp/960h.test-other.full.N1000.greedy_norep.tsv

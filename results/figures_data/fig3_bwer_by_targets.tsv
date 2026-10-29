@@ -1,0 +1,166 @@
+tag	condition	split	bucket	utts	biasing_words	b_wer
+100h	w/o Biasing	all	1	1528	1553	60.08
+100h	w/o Biasing	all	10	27	278	50.72
+100h	w/o Biasing	all	11+	35	426	49.53
+100h	w/o Biasing	all	2	997	2020	57.67
+100h	w/o Biasing	all	3	594	1810	56.57
+100h	w/o Biasing	all	4	388	1578	54.63
+100h	w/o Biasing	all	5	226	1146	53.32
+100h	w/o Biasing	all	6	151	923	47.56
+100h	w/o Biasing	all	7	82	586	49.15
+100h	w/o Biasing	all	8	54	436	48.62
+100h	w/o Biasing	all	9	39	355	50.14
+100h	w/o Biasing	test-clean	1	691	701	54.07
+100h	w/o Biasing	test-clean	10	17	172	45.35
+100h	w/o Biasing	test-clean	11+	25	305	43.61
+100h	w/o Biasing	test-clean	2	455	919	51.58
+100h	w/o Biasing	test-clean	3	271	831	51.26
+100h	w/o Biasing	test-clean	4	205	830	50.00
+100h	w/o Biasing	test-clean	5	117	591	48.90
+100h	w/o Biasing	test-clean	6	83	500	38.80
+100h	w/o Biasing	test-clean	7	51	363	43.53
+100h	w/o Biasing	test-clean	8	38	304	43.09
+100h	w/o Biasing	test-clean	9	27	245	45.71
+100h	w/o Biasing	test-other	1	837	852	65.02
+100h	w/o Biasing	test-other	10	10	106	59.43
+100h	w/o Biasing	test-other	11+	10	121	64.46
+100h	w/o Biasing	test-other	2	542	1101	62.76
+100h	w/o Biasing	test-other	3	323	979	61.08
+100h	w/o Biasing	test-other	4	183	748	59.76
+100h	w/o Biasing	test-other	5	109	555	58.02
+100h	w/o Biasing	test-other	6	68	423	57.92
+100h	w/o Biasing	test-other	7	31	223	58.30
+100h	w/o Biasing	test-other	8	16	132	61.36
+100h	w/o Biasing	test-other	9	12	110	60.00
+100h	Oracle	all	1	1528	1553	10.11
+100h	Oracle	all	10	27	278	12.23
+100h	Oracle	all	11+	35	426	18.78
+100h	Oracle	all	2	997	2020	9.50
+100h	Oracle	all	3	594	1810	9.72
+100h	Oracle	all	4	388	1578	9.44
+100h	Oracle	all	5	226	1146	9.34
+100h	Oracle	all	6	151	923	8.56
+100h	Oracle	all	7	82	586	8.02
+100h	Oracle	all	8	54	436	10.09
+100h	Oracle	all	9	39	355	10.70
+100h	Oracle	test-clean	1	691	701	6.28
+100h	Oracle	test-clean	10	17	172	12.79
+100h	Oracle	test-clean	11+	25	305	12.79
+100h	Oracle	test-clean	2	455	919	5.55
+100h	Oracle	test-clean	3	271	831	6.50
+100h	Oracle	test-clean	4	205	830	6.02
+100h	Oracle	test-clean	5	117	591	5.41
+100h	Oracle	test-clean	6	83	500	4.40
+100h	Oracle	test-clean	7	51	363	4.96
+100h	Oracle	test-clean	8	38	304	6.25
+100h	Oracle	test-clean	9	27	245	6.12
+100h	Oracle	test-other	1	837	852	13.26
+100h	Oracle	test-other	10	10	106	11.32
+100h	Oracle	test-other	11+	10	121	33.88
+100h	Oracle	test-other	2	542	1101	12.81
+100h	Oracle	test-other	3	323	979	12.46
+100h	Oracle	test-other	4	183	748	13.24
+100h	Oracle	test-other	5	109	555	13.51
+100h	Oracle	test-other	6	68	423	13.48
+100h	Oracle	test-other	7	31	223	13.00
+100h	Oracle	test-other	8	16	132	18.94
+100h	Oracle	test-other	9	12	110	20.91
+100h	BTI N=500	all	1	1528	1553	19.00
+100h	BTI N=500	all	10	27	278	16.55
+100h	BTI N=500	all	11+	35	426	24.41
+100h	BTI N=500	all	2	997	2020	19.16
+100h	BTI N=500	all	3	594	1810	17.57
+100h	BTI N=500	all	4	388	1578	16.86
+100h	BTI N=500	all	5	226	1146	14.40
+100h	BTI N=500	all	6	151	923	11.59
+100h	BTI N=500	all	7	82	586	11.26
+100h	BTI N=500	all	8	54	436	13.53
+100h	BTI N=500	all	9	39	355	15.21
+100h	BTI N=500	test-clean	1	691	701	13.69
+100h	BTI N=500	test-clean	10	17	172	16.86
+100h	BTI N=500	test-clean	11+	25	305	19.34
+100h	BTI N=500	test-clean	2	455	919	12.40
+100h	BTI N=500	test-clean	3	271	831	11.55
+100h	BTI N=500	test-clean	4	205	830	13.13
+100h	BTI N=500	test-clean	5	117	591	8.46
+100h	BTI N=500	test-clean	6	83	500	6.40
+100h	BTI N=500	test-clean	7	51	363	7.44
+100h	BTI N=500	test-clean	8	38	304	8.55
+100h	BTI N=500	test-clean	9	27	245	10.20
+100h	BTI N=500	test-other	1	837	852	23.36
+100h	BTI N=500	test-other	10	10	106	16.04
+100h	BTI N=500	test-other	11+	10	121	37.19
+100h	BTI N=500	test-other	2	542	1101	24.80
+100h	BTI N=500	test-other	3	323	979	22.68
+100h	BTI N=500	test-other	4	183	748	20.99
+100h	BTI N=500	test-other	5	109	555	20.72
+100h	BTI N=500	test-other	6	68	423	17.73
+100h	BTI N=500	test-other	7	31	223	17.49
+100h	BTI N=500	test-other	8	16	132	25.00
+100h	BTI N=500	test-other	9	12	110	26.36
+100h	BTI N=1000	all	1	1528	1553	20.54
+100h	BTI N=1000	all	10	27	278	19.06
+100h	BTI N=1000	all	11+	35	426	23.47
+100h	BTI N=1000	all	2	997	2020	21.19
+100h	BTI N=1000	all	3	594	1810	21.55
+100h	BTI N=1000	all	4	388	1578	17.87
+100h	BTI N=1000	all	5	226	1146	15.97
+100h	BTI N=1000	all	6	151	923	15.93
+100h	BTI N=1000	all	7	82	586	13.48
+100h	BTI N=1000	all	8	54	436	14.91
+100h	BTI N=1000	all	9	39	355	18.31
+100h	BTI N=1000	test-clean	1	691	701	15.26
+100h	BTI N=1000	test-clean	10	17	172	19.77
+100h	BTI N=1000	test-clean	11+	25	305	17.70
+100h	BTI N=1000	test-clean	2	455	919	15.56
+100h	BTI N=1000	test-clean	3	271	831	16.00
+100h	BTI N=1000	test-clean	4	205	830	13.37
+100h	BTI N=1000	test-clean	5	117	591	10.83
+100h	BTI N=1000	test-clean	6	83	500	10.00
+100h	BTI N=1000	test-clean	7	51	363	10.74
+100h	BTI N=1000	test-clean	8	38	304	9.87
+100h	BTI N=1000	test-clean	9	27	245	13.88
+100h	BTI N=1000	test-other	1	837	852	24.88
+100h	BTI N=1000	test-other	10	10	106	17.92
+100h	BTI N=1000	test-other	11+	10	121	38.02
+100h	BTI N=1000	test-other	2	542	1101	25.89
+100h	BTI N=1000	test-other	3	323	979	26.25
+100h	BTI N=1000	test-other	4	183	748	22.86
+100h	BTI N=1000	test-other	5	109	555	21.44
+100h	BTI N=1000	test-other	6	68	423	22.93
+100h	BTI N=1000	test-other	7	31	223	17.94
+100h	BTI N=1000	test-other	8	16	132	26.52
+100h	BTI N=1000	test-other	9	12	110	28.18
+100h	BTI N=5000	all	1	1528	1553	29.49
+100h	BTI N=5000	all	10	27	278	23.74
+100h	BTI N=5000	all	11+	35	426	29.81
+100h	BTI N=5000	all	2	997	2020	28.76
+100h	BTI N=5000	all	3	594	1810	28.45
+100h	BTI N=5000	all	4	388	1578	25.67
+100h	BTI N=5000	all	5	226	1146	21.90
+100h	BTI N=5000	all	6	151	923	19.28
+100h	BTI N=5000	all	7	82	586	18.26
+100h	BTI N=5000	all	8	54	436	21.33
+100h	BTI N=5000	all	9	39	355	21.97
+100h	BTI N=5000	test-clean	1	691	701	23.25
+100h	BTI N=5000	test-clean	10	17	172	22.67
+100h	BTI N=5000	test-clean	11+	25	305	23.93
+100h	BTI N=5000	test-clean	2	455	919	22.96
+100h	BTI N=5000	test-clean	3	271	831	21.18
+100h	BTI N=5000	test-clean	4	205	830	19.76
+100h	BTI N=5000	test-clean	5	117	591	14.21
+100h	BTI N=5000	test-clean	6	83	500	13.60
+100h	BTI N=5000	test-clean	7	51	363	14.33
+100h	BTI N=5000	test-clean	8	38	304	14.80
+100h	BTI N=5000	test-clean	9	27	245	15.92
+100h	BTI N=5000	test-other	1	837	852	34.62
+100h	BTI N=5000	test-other	10	10	106	25.47
+100h	BTI N=5000	test-other	11+	10	121	44.63
+100h	BTI N=5000	test-other	2	542	1101	33.61
+100h	BTI N=5000	test-other	3	323	979	34.63
+100h	BTI N=5000	test-other	4	183	748	32.22
+100h	BTI N=5000	test-other	5	109	555	30.09
+100h	BTI N=5000	test-other	6	68	423	26.00
+100h	BTI N=5000	test-other	7	31	223	24.66
+100h	BTI N=5000	test-other	8	16	132	36.36
+100h	BTI N=5000	test-other	9	12	110	35.45
