@@ -8,6 +8,9 @@
     nobias  不給任何 entity
     oracle  只給正確答案（E⁺）
     stage1  和 Stage 1 訓練時相同：10 個 entity，最多 5 個正樣本
+    distract  10 個干擾詞、不含任何正確答案：和訓練時同一種 prompt 格式的「不給提示」。
+            訓練時每句都有 entity 清單，nobias 的「Transcribe the speech.」訓練時從沒出現過；
+            用來檢查 w/o 的 B-WER 偏高是不是這個格式落差造成的
     file    從 --entities 指定的 JSON 讀每句的 entity 清單
             （bti.py 的輸出，或 score_stage2.py --dump-lists 的完整清單 → 重現 N=5000 OOM）
 
@@ -30,7 +33,7 @@ import torch
 from tqdm import tqdm
 from transformers import WhisperFeatureExtractor
 
-from biasing import load_rare_pool, make_stage1_list
+from biasing import load_rare_pool, make_biasing_list, make_stage1_list
 from dataset import LibriSpeechDataset
 from eval_utils import AMP_CHOICES, load_stage1_model
 from model import WHISPER_ID
@@ -55,7 +58,7 @@ def parse_args():
     ap.add_argument("--ckpt", required=True, help="Stage 1 checkpoint")
     ap.add_argument("--manifest", default="data/manifest/dev-clean.tsv")
     ap.add_argument("--out", required=True, help="輸出的 hyp 檔路徑")
-    ap.add_argument("--mode", default="nobias", choices=["nobias", "oracle", "stage1", "file"])
+    ap.add_argument("--mode", default="nobias", choices=["nobias", "oracle", "stage1", "distract", "file"])
     ap.add_argument("--entities", default=None, help="--mode file 用：{utt_id: [entity, ...]} 的 JSON")
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 句（快速測試）")
     ap.add_argument("--seed", type=int, default=42)
@@ -120,6 +123,9 @@ def main():
                 el = s["rare_words"]
             elif args.mode == "stage1":
                 el = make_stage1_list(s["rare_words"], rare_pool, rng)
+            elif args.mode == "distract":
+                pos = set(s["rare_words"])
+                el = [w for w in make_biasing_list(s["rare_words"], rare_pool, 10, rng) if w not in pos]
             else:
                 el = ent_file.get(s["utt_id"], [])
             n_ent += len(el)
