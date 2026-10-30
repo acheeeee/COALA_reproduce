@@ -17,7 +17,7 @@
 | N=5000 清單 | 未公開 | 自己抽，`Random(f"0-{utt_id}")` | 同左 |
 | Stage 1 CTC 權重 | 論文 0.3；**官方用 `0.5`** | 0.3（照論文） | 0.3 |
 | early stopping | 論文未寫；官方`patience 10`| `patience 10`（同官方） | 同左 |
-| 選 checkpoint | 官方推論用最後一個 | Stage 1 `best.pt`（val loss，epoch 5）；Stage 2 最後一個 `epoch6.pt` | Stage 1 `best.pt`（= 最後一個 epoch 9）；Stage 2 `epoch6.pt` |
+| 選 checkpoint | 官方推論用最後一個 | Stage 1 `best.pt`（val loss，epoch 5）；Stage 2 最後一個 `epoch6.pt` | Stage 1 `best.pt`（val loss，step 546,000 = epoch 7 中段）；Stage 2 `epoch6.pt` |
 | 解碼（Table 2） | 論文未寫；官方 beam 20 + sampling + repetition penalty 1.1 + no-repeat 3-gram | **greedy + repetition penalty 1.1 + no-repeat 3-gram**（`--decode greedy_norep`） | 同左 |
 | GPU | RTX 3090(ASR+Scoring+評估) |RTX 3090（ASR+Scoring: DPD&disc);RTX A5000（Scoring: MPD&Bias-Loss）；RTX 2080 Ti （評估） | RTX 2080 Ti（ASR）；RTX 3090 / RTX A5000（Scoring+評估） |
 
