@@ -69,12 +69,12 @@ Recall@95 越小越好；Recall#20、Recall#50 越大越好（%）。
 | Methods | Recall@95 clean | Recall@95 other | Recall#20 clean | Recall#20 other | Recall#50 clean | Recall#50 other |
 |---|---|---|---|---|---|---|
 | COALA − Bias-Loss | 11 | 24 | 98.16 | 94.57 | 99.16 | 96.91 |
-| COALA − MPD-Loss | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| COALA − MPD-Loss | **9** | 18 | 98.66 | 95.43 | 99.44 | 97.43 |
 | COALA − DPD-Loss | **9** | **16** | **98.89** | **95.81** | **99.56** | **97.56** |
 
-> Recall@95 用官方 code 的算法（同 100 h）；照論文文字逐句平均是 Bias 12.2 / 31.1、DPD 8.2 / 22.5（clean / other）。MPD 還在訓練（2026-10-29 練完 3 / 7 個 epoch）。
+> Recall@95 用官方 code 的算法（同 100 h）；照論文文字逐句平均是 Bias 12.2 / 31.1、MPD 8.4 / 25.1、DPD 8.2 / 22.5（clean / other）。
 >
-> **和論文很接近**：DPD clean 的 Recall@95 = 9，和論文的 9.0 相同；Recall#20 / #50 和論文差不到 1 個百分點（clean 98.89 vs 99.09、99.56 vs 99.60；other 95.81 vs 96.59、97.56 vs 98.17）。DPD 在每一欄都勝過 Bias-Loss，和論文的結論相同。100 h 和論文的差距主要來自訓練資料量（尤其沒有 other 語音）。
+> **和論文很接近**：DPD clean 的 Recall@95 = 9，和論文的 9.0 相同；Recall#20 / #50 和論文差不到 1 個百分點（clean 98.89 vs 99.09、99.56 vs 99.60；other 95.81 vs 96.59、97.56 vs 98.17）。排序 DPD > MPD > Bias 和論文相同（100 h 是 MPD 略勝 DPD，960 h 反過來，和論文一致）；MPD 幾乎和論文的 MPD 一樣（9 / 18 vs 9.0 / 16.9、98.66 / 95.43 vs 98.76 / 95.65）。100 h 和論文的差距主要來自訓練資料量（尤其沒有 other 語音）。
 >
 > 960 h 不單獨訓練 disc：Bias-Loss（0.9·disc + 0.1·log）已經包含 disc，disc 單獨的對照只在 100 h 做一次（2026-10-24 決定）。
 
