@@ -76,19 +76,19 @@
         <mxCell id="n26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="projector.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.1、2　576 → 1 分數&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="180" x="700" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="n27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;strokeWidth=2;" value="losses.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Eq.3 disc、Eq.4 MPD、Eq.5 DPD + Bias-Loss&lt;/font&gt;" vertex="1">
+        <mxCell id="n27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1;strokeWidth=2;" value="losses.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;disc / MPD / DPD / Bias-Loss&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="900" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="n28" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="train_stage2.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;M=120，121 次 forward + KV cache（8b 起）&lt;/font&gt;" vertex="1">
+        <mxCell id="n28" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="train_stage2.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;M=120，121 次 forward + KV cache&lt;/font&gt;" vertex="1">
           <mxGeometry height="50" width="190" x="800" y="780" as="geometry" />
         </mxCell>
-        <mxCell id="n30" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;dashed=1;" value="exp/stage2/*.pt&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;projector + LoRA_scoring&lt;/font&gt;" vertex="1">
+        <mxCell id="n30" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="exp/stage2/*.pt&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;projector + LoRA_scoring&lt;/font&gt;" vertex="1">
           <mxGeometry height="50" width="190" x="800" y="875" as="geometry" />
         </mxCell>
-        <mxCell id="n29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="bti.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;top-K=10 + &amp;lt;unbiased&amp;gt; 門檻&lt;/font&gt;" vertex="1">
+        <mxCell id="n29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="bti.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;top-K=10 + &amp;lt;unbiased&amp;gt; 門檻&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="800" y="970" as="geometry" />
         </mxCell>
-        <mxCell id="n31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;dashed=1;" value="recall.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Recall@X、Recall#X&lt;/font&gt;" vertex="1">
+        <mxCell id="n31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="recall.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;Recall@X、Recall#X&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="180" x="1030" y="970" as="geometry" />
         </mxCell>
         <mxCell id="lbl7" parent="1" style="text;html=1;fontSize=11;fontStyle=2;align=left;fontColor=#82b366;" value="⑦ 評估" vertex="1">
@@ -127,7 +127,7 @@
         <mxCell id="n32" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;" value="dump_tb.py&lt;br&gt;&lt;font style=&quot;font-size: 9px;&quot; color=&quot;#777777&quot;&gt;tensorboard → epoch 摘要&lt;/font&gt;" vertex="1">
           <mxGeometry height="45" width="190" x="1160" y="330" as="geometry" />
         </mxCell>
-        <mxCell id="n33" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#cccccc;align=left;spacingLeft=6;" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;灰 外部唯讀　藍 資料層　橘 模型層&lt;br&gt;紅 訓練／評估腳本　綠 產物　紫 Stage 2 與工具&lt;br&gt;虛線 尚未實作&lt;/font&gt;" vertex="1">
+        <mxCell id="n33" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#cccccc;align=left;spacingLeft=6;" value="&lt;font style=&quot;font-size: 9px;&quot;&gt;灰 外部唯讀　藍 資料層　橘 模型層&lt;br&gt;紅 訓練／評估腳本　綠 產物　紫 Stage 2 與工具&lt;br&gt;虛線框 暫存檔　虛線箭頭 輔助輸入&lt;/font&gt;" vertex="1">
           <mxGeometry height="65" width="200" x="40" y="1065" as="geometry" />
         </mxCell>
         <mxCell id="e1" edge="1" parent="1" source="n1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="n4">
@@ -244,7 +244,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e25" edge="1" parent="1" source="n13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.75;exitY=1;fontSize=9;" target="n26" value="hidden state">
+        <mxCell id="e25" edge="1" parent="1" source="n13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.75;exitY=1;fontSize=9;" target="n26" value="hidden state">
           <mxGeometry relative="1" x="0.5628" as="geometry">
             <Array as="points">
               <mxPoint x="817.5" y="652.5" />
@@ -252,29 +252,29 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e26" edge="1" parent="1" source="n26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" target="n28">
+        <mxCell id="e26" edge="1" parent="1" source="n26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" target="n28">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e27" edge="1" parent="1" source="n27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" target="n28">
+        <mxCell id="e27" edge="1" parent="1" source="n27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" target="n28">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e28" edge="1" parent="1" source="n17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=9;" target="n28" value="凍結 Stage 1">
+        <mxCell id="e28" edge="1" parent="1" source="n17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=9;" target="n28" value="凍結 Stage 1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="700" y="805" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e29" edge="1" parent="1" source="n28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="n30">
+        <mxCell id="e29" edge="1" parent="1" source="n28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="n30">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e30" edge="1" parent="1" source="n30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="n29">
+        <mxCell id="e30" edge="1" parent="1" source="n30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="n29">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e31" edge="1" parent="1" source="n29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="n31">
+        <mxCell id="e31" edge="1" parent="1" source="n29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="n31">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e32" edge="1" parent="1" source="n29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=9;" target="n16" value="top-10 entity 寫回 prompt">
+        <mxCell id="e32" edge="1" parent="1" source="n29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=9;" target="n16" value="top-10 entity 寫回 prompt">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="740" y="992" />
@@ -282,7 +282,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e33" edge="1" parent="1" source="n9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;entryX=0;entryY=0.5;" target="n28">
+        <mxCell id="e33" edge="1" parent="1" source="n9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;" target="n28">
           <mxGeometry relative="1" x="-0.0215" as="geometry">
             <Array as="points">
               <mxPoint x="490" y="500" />

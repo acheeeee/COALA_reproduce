@@ -113,17 +113,17 @@ train-other-500 & 148,688 & 496.9 h \\
 \includegraphics[width=\linewidth]{figures/paper_fig1_pipeline.pdf}
 \end{center}
 
-{\small
-(a) COALA 的 biasing scoring 架構：凍結的 backbone，加上可訓練的 LoRA 和 discriminative projector。\\
-(b) 抽樣與打分：每個正樣本 $E^+$、負樣本 $E^-$ 各得到一個匹配分數 $S$。\\
-(c) 三種 loss 的比較：discriminative loss 的多個正樣本會互相競爭；MPD-Loss（局部解耦）和 DPD-Loss（逐點解耦）解決這個梯度衝突。
-}
-
 \begin{enumerate}[leftmargin=*, itemsep=0.2em]
 \item \textbf{Stage 1（ASR）}：Whisper-large-v2 encoder + SmolLM2-135M，把 biasing 字詞放進 prompt 轉寫。
 \item \textbf{Stage 2（biasing scoring）}：替候選清單（N 個字詞）每個字打分，訓練用 Bias / MPD / DPD loss。→ Table 1
 \item \textbf{BTI}：取 Stage 2 分數前 10 名、且高於 \texttt{<unbiased>} 的字詞，放回 Stage 1 的 prompt。→ Table 2
 \end{enumerate}
+
+\subsection*{本實作的檔案流程（論文沒有完整流程圖，自行整理）}
+
+\begin{center}
+\includegraphics[width=\linewidth,height=0.45\textheight,keepaspectratio]{figures/our_pipeline.pdf}
+\end{center}
 
 % ---------------------------------------------------------------------
 \clearpage
