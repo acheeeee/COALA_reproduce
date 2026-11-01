@@ -16,3 +16,6 @@ paper/*.tar.gz
 
 # LaTeX 編譯中間檔（VS Code + tectonic），PDF 另外複製到最外層 COALA_results.pdf
 .latex_build/
+
+# draw.io 編輯時自動產生的備份檔
+*.bkp
