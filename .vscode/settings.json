@@ -1,17 +1,24 @@
 {
-  // LaTeX Workshop：用 tectonic（XeTeX 引擎，支援中文）編譯，PDF 放在 build/
+  // LaTeX Workshop：用 tectonic（XeTeX 引擎，支援中文）編譯
+  // 編譯的中間檔放在隱藏的 .latex_build/，最後的 PDF 複製到最外層 COALA_results.pdf
   "latex-workshop.latex.tools": [
     {
       "name": "tectonic",
       "command": "/opt/homebrew/bin/tectonic",
       "args": ["--synctex", "--keep-logs", "--outdir", "%OUTDIR%", "%DOC%.tex"],
       "env": {}
+    },
+    {
+      "name": "copy-pdf",
+      "command": "cp",
+      "args": ["%OUTDIR%/%DOCFILE%.pdf", "%WORKSPACE_FOLDER%/COALA_results.pdf"],
+      "env": {}
     }
   ],
   "latex-workshop.latex.recipes": [
-    { "name": "tectonic", "tools": ["tectonic"] }
+    { "name": "tectonic", "tools": ["tectonic", "copy-pdf"] }
   ],
-  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/.latex_build",
   "latex-workshop.latex.autoBuild.run": "onSave",
   "latex-workshop.view.pdf.viewer": "tab"
 }

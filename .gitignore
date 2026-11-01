@@ -14,5 +14,5 @@ obsidian/.obsidian/workspace.json
 obsidian/.obsidian/graph.json
 paper/*.tar.gz
 
-# LaTeX 編譯輸出（VS Code + tectonic）
-build/
+# LaTeX 編譯中間檔（VS Code + tectonic），PDF 另外複製到最外層 COALA_results.pdf
+.latex_build/
